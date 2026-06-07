@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MMAATTCCHH</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: #fff34c;
+    font-family: Arial, Helvetica, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    position: relative;
+  }
+
+  /* ── PHYSICS LAYER ── */
+  #physics-layer {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 50;
+    overflow: hidden;
+  }
+  #physics-layer span {
+    position: absolute;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 400;
+    color: #111;
+    pointer-events: none;
+    user-select: none;
+    white-space: pre;
+  }
+
+  /* ── LANDING TEXT SECTION ── */
+  #section-text {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 60px;
+    position: relative;
+    cursor: pointer;
+  }
+
+  #landing-text {
+    font-size: clamp(22px, 3.2vw, 48px);
+    font-weight: 400;
+    line-height: 1.2;
+    color: #111;
+    user-select: none;
+    max-width: 800px;
+    text-align: left;
+  }
+  #landing-text .char { display: inline-block; will-change: transform; }
+
+  #landing-hint {
+    position: absolute;
+    bottom: 28px;
+    left: 60px;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #111;
+    opacity: 0.4;
+    pointer-events: none;
+    transition: opacity 0.4s;
+  }
+  #landing-hint.hidden { opacity: 0; }
+
+  /* ── MENU SECTION ── */
+  #section-menu {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .stack {
+    width: min(700px, 95vw);
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .row {
+    text-decoration: none;
+    display: block;
+    position: relative;
+    width: 100%;
+    height: 148px;
+    margin-top: -35px;
+    cursor: pointer;
+    overflow: visible;
+  }
+  .row:first-child { margin-top: 0; }
+
+  .row:nth-child(1) { z-index: 5; }
+  .row:nth-child(2) { z-index: 4; }
+  .row:nth-child(3) { z-index: 3; }
+  .row:nth-child(4) { z-index: 2; }
+  .row:nth-child(5) { z-index: 1; }
+
+  .slab {
+    position: absolute;
+    top: 0; bottom: 0;
+    left: -100px; right: -100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.55s cubic-bezier(.56, .86, .59, 1);
+    will-change: transform;
+  }
+  .slab img { width: 45%; height: auto; display: block; }
+
+  .row.go-left  .slab { transform: translateX(0); }
+  .row.go-left:hover  .slab { transform: translateX(-300px); }
+  .row.go-right .slab { transform: translateX(0); }
+  .row.go-right:hover .slab { transform: translateX(300px); }
+
+  .label {
+    position: absolute;
+    top: 50%;
+    font-size: 20px;
+    font-weight: 400;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #111;
+    white-space: nowrap;
+    z-index: 10;
+    transition: transform 0.55s cubic-bezier(.56, .86, .59, 1);
+  }
+  .row.go-left  .label { left: 230px;  bottom: 24px; transform: rotate(12deg); transform-origin: left bottom; }
+  .row.go-right .label { right: 218px; bottom: 24px; transform: rotate(-12deg); transform-origin: right bottom; }
+  .row.go-left:hover  .label { transform: rotate(12deg) translateX(-300px); }
+  .row.go-right:hover .label { transform: rotate(-12deg) translateX(300px); }
+
+
+  /* ── INNER PAGES ── */
+  .inner-page {
+    display: none;
+    min-height: 100vh;
+    background: #fff;
+    padding: 60px 40px 100px;
+  }
+  .inner-page.active { display: block; }
+
+  /* hide sections when inner page is active */
+  body.page-open #scroll-content { display: none; }
+
+  .inner-wrap { max-width: 720px; margin: 0 auto; }
+  #page-about .inner-wrap { max-width: 740px; }
+
+  .back-btn {
+    display: inline-block;
+    margin-bottom: 40px;
+    background: none; border: none;
+    cursor: pointer;
+    font-size: 13px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: #111;
+    padding: 0; opacity: 0.5;
+    transition: opacity 0.2s;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  .back-btn:hover { opacity: 1; }
+
+  .page-title {
+    font-size: clamp(28px, 5vw, 56px);
+    font-weight: 400; letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 48px; line-height: 1;
+  }
+
+  .body-text p {
+    font-size: clamp(16px, 1.5vw, 20px);
+    line-height: 1.85; margin-bottom: 1.6em; color: #111;
+  }
+  .scroll-word { display: inline-block; will-change: transform; opacity: 0; }
+
+  .hl        { display: inline; padding: 0 3px; border-radius: 2px; }
+  .hl-green  { background: #b8e8b0; }
+  .hl-blue   { background: #a8d8f0; }
+  .hl-coral  { background: #f4a8a0; }
+  .hl-orange { background: #f5c87a; }
+  .hl-purple { background: #c8aee8; }
+
+  .card-gallery {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 16px; margin: 40px 0;
+  }
+  @media (max-width: 600px) { .card-gallery { grid-template-columns: repeat(2, 1fr); } }
+  .gallery-card { border: 1.5px solid #e0e0e0; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; }
+  .gallery-card-face { aspect-ratio: 2.5/3.5; padding: 10px; display: flex; flex-direction: column; }
+  .gallery-card-tag { font-size: 9px; letter-spacing: 0.05em; opacity: 0.6; line-height: 1.4; margin-bottom: auto; }
+  .gallery-card-info { padding: 10px 10px 12px; border-top: 1.5px solid #e0e0e0; }
+  .gallery-card-name { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+  .gallery-card-desc { font-size: 10px; line-height: 1.5; color: #666; }
+
+  .randomizer-wrap { display: grid; grid-template-columns: auto 1fr; gap: 48px; align-items: start; margin-top: 8px; }
+  @media (max-width: 560px) { .randomizer-wrap { grid-template-columns: 1fr; justify-items: center; } }
+  .rand-card-scene { width: 160px; aspect-ratio: 2.5/3.5; perspective: 600px; flex-shrink: 0; }
+  .rand-card-flipper { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; }
+  .rand-card-placeholder { width: 100%; height: 100%; border-radius: 8px; border: 1.5px solid #222; background: #fff; display: flex; flex-direction: column; padding: 12px; position: absolute; inset: 0; }
+  .rand-card-tag { font-size: 8px; letter-spacing: 0.05em; opacity: 0.5; line-height: 1.3; margin-bottom: auto; }
+  .rand-card-name { font-size: 13px; font-weight: 600; line-height: 1.3; }
+  .rand-info { display: flex; flex-direction: column; }
+  .rand-row { display: flex; flex-direction: column; padding: 12px 0; border-bottom: 1px solid #e8e8e8; }
+  .rand-label { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.4; margin-bottom: 4px; }
+  .rand-value { font-size: clamp(14px, 1.4vw, 17px); transition: opacity 0.2s; }
+  .rand-value.fade { opacity: 0; }
+  .rand-prompt { margin-top: 20px; font-size: 14px; line-height: 1.75; color: #444; min-height: 72px; transition: opacity 0.2s; }
+  .rand-prompt.fade { opacity: 0; }
+  .rand-btn { margin-top: 28px; background: #111; color: #fff34c; border: none; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; padding: 11px 24px; cursor: pointer; transition: background 0.2s; font-family: Arial, Helvetica, sans-serif; }
+  .rand-btn:hover { background: #333; }
+
+  .scan-wrap { max-width: 500px; }
+  .scan-wrap p { font-size: 15px; line-height: 1.75; margin-bottom: 24px; color: #111; }
+  .scanner-box { width: 100%; aspect-ratio: 4/3; border: 1.5px solid #111; position: relative; overflow: hidden; background: #f4f4f4; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+  .scanner-box video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; }
+  .scanner-box video.active { display: block; }
+  .scanner-label { font-size: 12px; color: #999; }
+  .scan-btn { background: #111; color: #fff; border: none; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; padding: 11px 24px; cursor: pointer; margin-bottom: 24px; display: inline-block; transition: background 0.2s; font-family: Arial, Helvetica, sans-serif; }
+  .scan-btn:hover { background: #333; }
+  .scan-result { border: 1.5px solid #111; padding: 20px; font-size: 14px; line-height: 1.7; opacity: 0; transition: opacity 0.5s; }
+  .scan-result.visible { opacity: 1; }
+  .scan-result .pattern-name { font-size: 13px; font-weight: 600; background: #fff34c; padding: 3px 7px; display: inline-block; margin-bottom: 12px; }
+
+  /* ── ANOTHER / DECK TABLE ── */
+  #page-another {
+    background: #fff34c;
+    display: none;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+  }
+  #page-another.active { display: block; }
+
+  .cards-back {
+    position: absolute; top: 28px; left: 40px;
+    background: none; border: none; cursor: pointer;
+    font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: #111; opacity: 0.5; transition: opacity 0.2s; z-index: 100;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  .cards-back:hover { opacity: 1; }
+
+  /* piles bar at bottom center */
+  #piles-bar {
+    position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 20px; align-items: flex-end; z-index: 20;
+  }
+
+  .pile-slot { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; }
+
+  .pile-visual { position: relative; width: 72px; height: 100px; transition: transform 0.2s; }
+  .pile-slot:hover .pile-visual { transform: translateY(-4px); }
+  .pile-slot.active .pile-visual { transform: translateY(-8px); }
+
+  .pile-card-bg {
+    position: absolute; width: 72px; height: 100px;
+    border-radius: 5px; border: 1.5px solid #111; background: #fff;
+  }
+  .pile-card-bg:nth-child(1) { transform: rotate(-4deg) translate(-2px, 2px); z-index: 1; }
+  .pile-card-bg:nth-child(2) { transform: rotate(3deg)  translate(2px, 3px);  z-index: 0; }
+
+  .pile-card-top {
+    position: absolute; inset: 0; border-radius: 5px;
+    border: 1.5px solid #111; background: #fff; z-index: 2;
+    display: flex; flex-direction: column; padding: 8px 6px;
+    transition: background 0.2s;
+  }
+  .pile-slot.active .pile-card-top { background: #111; }
+
+  .pile-card-tag   { font-size: 6px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.4; line-height: 1.4; }
+  .pile-card-count { margin-top: auto; font-size: 18px; font-weight: 600; color: #111; line-height: 1; }
+  .pile-slot.active .pile-card-tag,
+  .pile-slot.active .pile-card-count { color: #fff34c; opacity: 1; }
+
+  .pile-label { font-size: 9px; letter-spacing: 0.07em; text-transform: uppercase; color: #111; text-align: center; max-width: 72px; line-height: 1.3; }
+
+  /* cards scattered on the table */
+  .table-card {
+    position: absolute;
+    width: 80px;
+    aspect-ratio: 2.5 / 3.5;
+    background: #fff; border: 1.5px solid #111; border-radius: 5px;
+    padding: 8px 6px; display: flex; flex-direction: column;
+    cursor: pointer; user-select: none;
+    transition: transform 0.65s cubic-bezier(0.15,0,0.3,1),
+                left      0.65s cubic-bezier(0.15,0,0.3,1),
+                top       0.65s cubic-bezier(0.15,0,0.3,1),
+                opacity   0.3s,
+                box-shadow 0.15s;
+  }
+  .table-card:hover {
+    box-shadow: 0 10px 28px rgba(0,0,0,0.18);
+    z-index: 300 !important;
+  }
+  .table-card-tag  { font-size: 6px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.4; line-height: 1.4; margin-bottom: auto; }
+  .table-card-name { font-size: 9px; font-weight: 600; line-height: 1.3; color: #111; }
+
+  /* card overlay */
+  .card-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.78);
+    z-index: 500; display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s; padding: 40px;
+  }
+  .card-overlay.active { opacity: 1; pointer-events: all; }
+
+  .card-overlay-close {
+    position: absolute; top: 24px; right: 28px;
+    background: none; border: none; color: #fff;
+    font-size: 28px; cursor: pointer; opacity: 0.6;
+    transition: opacity 0.2s; z-index: 501;
+    font-family: Arial, Helvetica, sans-serif; line-height: 1;
+  }
+  .card-overlay-close:hover { opacity: 1; }
+
+  .card-overlay-inner { display: flex; gap: 40px; align-items: flex-start; max-width: 760px; width: 100%; }
+
+  .card-face-large {
+    width: 200px; min-width: 200px; aspect-ratio: 2.5 / 3.5;
+    background: #fff; border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.2);
+    padding: 20px 16px; display: flex; flex-direction: column;
+  }
+  .card-face-tag  { font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.4; line-height: 1.5; margin-bottom: auto; }
+  .card-face-cat  { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.5; margin-bottom: 6px; color: #111; }
+  .card-face-name { font-size: 16px; font-weight: 600; line-height: 1.2; color: #111; }
+
+  .card-info-panel { flex: 1; color: #fff; overflow-y: auto; max-height: 80vh; }
+  .card-info-panel h2 { font-size: clamp(20px, 3vw, 30px); font-weight: 400; letter-spacing: 0.02em; margin-bottom: 6px; line-height: 1.1; }
+  .card-info-deckcat { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.45; margin-bottom: 24px; }
+  .card-info-desc { font-size: 15px; line-height: 1.75; opacity: 0.85; margin-bottom: 20px; }
+  .card-info-ex-label { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.4; margin-bottom: 8px; }
+  .card-info-ex { font-size: 14px; line-height: 1.65; opacity: 0.7; font-style: italic; }
+
+  .card-overlay-nav { display: flex; gap: 12px; margin-top: 28px; align-items: center; }
+  .card-nav-btn {
+    background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25);
+    color: #fff; padding: 8px 18px; font-size: 12px; letter-spacing: 0.1em;
+    text-transform: uppercase; cursor: pointer; transition: background 0.2s;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  .card-nav-btn:hover:not(:disabled) { background: rgba(255,255,255,0.22); }
+  .card-nav-btn:disabled { opacity: 0.25; cursor: default; }
+  .card-nav-count { font-size: 12px; opacity: 0.4; letter-spacing: 0.05em; }
+
+  #cards-download {
+    position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+    background: #111; color: #fff34c; border: none;
+    font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 10px 20px; cursor: pointer; z-index: 20;
+    font-family: Arial, Helvetica, sans-serif;
+    text-decoration: none; display: inline-block; white-space: nowrap;
+    transition: background 0.2s;
+  }
+  #cards-download:hover { background: #333; }
+
+  @media (max-width: 600px) {
+    .card-overlay-inner { flex-direction: column; align-items: center; }
+    .card-face-large { width: 140px; min-width: 140px; }
+    #piles-bar { gap: 12px; }
+    .pile-visual { width: 56px; height: 78px; }
+    .pile-card-bg { width: 56px; height: 78px; }
+  }
+
+  @media (max-width: 520px) {
+    .inner-page { padding: 32px 20px 80px; }
+    #section-text { padding: 48px 28px; }
+    #landing-hint { left: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="scroll-content">
+
+<!-- PHYSICS LAYER -->
+<div id="physics-layer"></div>
+
+<!-- SECTION 1: LANDING TEXT -->
+<section id="section-text">
+  <p id="landing-text"></p>
+  <span id="landing-hint">click to scatter</span>
+</section>
+
+<!-- SECTION 2: MENU (template — cloned for each loop) -->
+<section id="section-menu" class="loop-menu">
+  <div class="stack" id="menu-template">
+    <a class="row go-right" data-page="about" href="#">
+      <div class="slab"><img src="forma.png" alt=""></div>
+      <span class="label">ABOUT</span>
+    </a>
+    <a class="row go-left" data-page="rules" href="#">
+      <div class="slab"><img src="forma.png" alt=""></div>
+      <span class="label">RULES</span>
+    </a>
+    <a class="row go-right" data-page="random" href="#">
+      <div class="slab"><img src="forma.png" alt=""></div>
+      <span class="label">SHUFFLE</span>
+    </a>
+    <a class="row go-left" data-page="scan" href="#">
+      <div class="slab"><img src="forma.png" alt=""></div>
+      <span class="label">SCAN</span>
+    </a>
+    <a class="row go-right" data-page="another" href="#">
+      <div class="slab"><img src="forma.png" alt=""></div>
+      <span class="label">DOWNLOAD</span>
+    </a>
+  </div>
+</section>
+
+</div><!-- end #scroll-content -->
+
+<!-- ABOUT -->
+<div class="inner-page" id="page-about">
+  <div class="inner-wrap">
+    <button class="back-btn" onclick="showHome()">← Back</button>
+    <h1 class="page-title">About</h1>
+    <div class="body-text">
+      <p>Break the Loop is a research project based at I2ADS — Institute of Research in Art, Design and Society, Faculty of Fine Arts, University of Porto — funded by FCT under project «2023.14448.PEX».</p>
+      <p>The project begins from a critical position towards the dominant paradigm of <mark class="hl hl-blue">Human-Centred Design</mark>: by systematically prioritising frictionlessness and the removal of any obstacle to interaction, HCD has contributed to digital interfaces that exploit user behaviour through mechanisms such as <mark class="hl hl-coral">infinite scroll</mark>, <mark class="hl hl-coral">variable reward systems</mark> and <mark class="hl hl-coral">intermittent notifications</mark> — practices that induce repetitive behavioural loops and reduce the user's capacity for reflection and critical thought.</p>
+      <p>The concept of <mark class="hl hl-blue">flow</mark> (Csikszentmihalyi, 1990) describes a state of total immersion in an activity. Originally studied in contexts such as sport, music and creative work, flow was progressively adopted by interaction design as a quality criterion. This association carries an ethical tension rarely made explicit: flow as artificially prolonged by digital platforms is qualitatively distinct from the intrinsically motivated flow Csikszentmihalyi describes. The former induces not meaningful immersion but <mark class="hl hl-coral">behavioural dependency</mark>.</p>
+      <p>The term <mark class="hl hl-coral">dark patterns</mark> was coined by Harry Brignull in 2010 to describe interface design strategies that manipulate or deceive users into decisions they would not make if fully informed. Research shows that many designers reproduce dark patterns without full awareness of doing so — reinforcing the need for tools that make visible what tends to remain implicit in the design process.</p>
+      <p>Break the Loop proposes to research and systematise alternative strategies, drawn from game design and the notion of <mark class="hl hl-green">intentional friction</mark>, capable of restoring to the user <mark class="hl hl-green">autonomy</mark> and the capacity for <mark class="hl hl-green">conscious decision-making</mark> in their digital interactions. Friction, here, is not a failure of design — it is a <mark class="hl hl-orange">deliberate act of care</mark>.</p>
+      <p>The <mark class="hl hl-purple">card deck</mark> emerges in this context as a pedagogical and investigative artefact: a tangible tool that allows designers, students and practitioners to explore, argue and apply friction patterns in interface design.</p>
+      <p>The project is part of a broader reflection on the responsibility of designers in the construction of digital environments. <mark class="hl hl-orange">To design is always a political act.</mark> The question is not whether our interfaces shape behaviour — they do — but whether we are willing to be accountable for how they do so.</p>
+    </div>
+  </div>
+</div>
+
+<!-- RULES -->
+<div class="inner-page" id="page-rules">
+  <div class="inner-wrap">
+    <button class="back-btn" onclick="showHome()">← Back</button>
+    <h1 class="page-title">Rules</h1>
+    <div class="body-text">
+      <p>The game is played in <mark class="hl hl-blue">three modes</mark>. Each one proposes a different relationship between players, cards and the act of designing. There is no single correct way to play — only different degrees of complexity and intention.</p>
+      <p>Before each session, shuffle the <mark class="hl hl-purple">Friction Patterns Deck</mark> and place it face down at the centre of the table. The <mark class="hl hl-orange">Platform</mark> and <mark class="hl hl-coral">Ethical Challenge</mark> decks are kept separate. The Flow cards and Connectors form the building material of the system.</p>
+    </div>
+    <div class="card-gallery">
+      <div class="gallery-card"><div class="gallery-card-face"><span class="gallery-card-tag">Friction<br>Patterns</span></div><div class="gallery-card-info"><div class="gallery-card-name">Friction Patterns</div><div class="gallery-card-desc">Design strategies that introduce intentional obstacles, prompting reflection and conscious choice.</div></div></div>
+      <div class="gallery-card"><div class="gallery-card-face"><span class="gallery-card-tag">Platform</span></div><div class="gallery-card-info"><div class="gallery-card-name">Platform</div><div class="gallery-card-desc">Sets the digital context for the round — social media, e-commerce, streaming, banking, and more.</div></div></div>
+      <div class="gallery-card"><div class="gallery-card-face"><span class="gallery-card-tag">Ethical<br>Challenge</span></div><div class="gallery-card-info"><div class="gallery-card-name">Ethical Challenge</div><div class="gallery-card-desc">Poses the moral question the round must address — autonomy, consent, attention, manipulation.</div></div></div>
+      <div class="gallery-card"><div class="gallery-card-face"><span class="gallery-card-tag">Flow &amp;<br>Connectors</span></div><div class="gallery-card-info"><div class="gallery-card-name">Flow &amp; Connectors</div><div class="gallery-card-desc">Building blocks for mapping user journeys — screens, actions and the paths between them.</div></div></div>
+    </div>
+    <div class="body-text">
+      <p><mark class="hl hl-green">Mode 1 — Archive.</mark> Individual or group exploration. No competitive structure, no problem-solving objectives. Pick a card from the Friction Patterns Deck, point the camera at it, and unlock the digital archive entry.</p>
+      <p>Archive mode has no winner. It ends when the group decides it ends. It is a <mark class="hl hl-green">vocabulary-building exercise</mark>, a slow reading of the designed world around us.</p>
+      <p><mark class="hl hl-blue">Mode 2 — Challenge.</mark> One player draws a Platform card and an Ethical Challenge card. Each other player receives three Pattern cards and secretly chooses the one they believe responds most appropriately. Cards are revealed simultaneously. Each player has one minute to defend their proposal.</p>
+      <p>Challenge mode rewards <mark class="hl hl-coral">argumentation, not correctness</mark>. There is rarely a single right answer.</p>
+      <p><mark class="hl hl-orange">Mode 3 — System.</mark> One player takes the role of Designer; another becomes the <mark class="hl hl-coral">Friction Agent</mark>. The Designer builds a logical user journey using Flow and Connector cards. The Friction Agent intervenes: placing Pattern cards at connection points, introducing intentional obstacles.</p>
+      <p>The result is a physical diagram — a visible record of the <mark class="hl hl-purple">negotiation between usability and ethical intervention</mark>. It is never finished.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SHUFFLE -->
+<div class="inner-page" id="page-random">
+  <div class="inner-wrap">
+    <button class="back-btn" onclick="showHome()">← Back</button>
+    <h1 class="page-title">Shuffle</h1>
+    <div class="randomizer-wrap">
+      <div class="rand-card-scene">
+        <div class="rand-card-flipper" id="rand-card-flipper">
+          <div class="rand-card-placeholder">
+            <span class="rand-card-tag">Friction<br>Patterns</span>
+            <span class="rand-card-name" id="rand-card-name">—</span>
+          </div>
+        </div>
+      </div>
+      <div class="rand-info">
+        <div class="rand-row"><span class="rand-label">Platform</span><span class="rand-value" id="rand-platform">—</span></div>
+        <div class="rand-row"><span class="rand-label">Challenge</span><span class="rand-value" id="rand-challenge">—</span></div>
+        <div class="rand-row"><span class="rand-label">Pattern</span><span class="rand-value" id="rand-pattern">—</span></div>
+        <div class="rand-prompt" id="rand-prompt"></div>
+        <button class="rand-btn" id="rand-btn">Shuffle ↻</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCAN -->
+<div class="inner-page" id="page-scan">
+  <div class="inner-wrap">
+    <button class="back-btn" onclick="showHome()">← Back</button>
+    <h1 class="page-title">Scan</h1>
+    <div class="scan-wrap">
+      <p>Point the camera at any card from the deck to access its digital archive entry — full pattern definition, taxonomy and application examples.</p>
+      <div class="scanner-box">
+        <video id="video" playsinline autoplay></video>
+        <p class="scanner-label" id="scanner-label">camera inactive</p>
+      </div>
+      <button class="scan-btn" id="scan-btn">Activate camera</button>
+      <div class="scan-result" id="scan-result">
+        <span class="pattern-name">Confront the User</span>
+        Interrupts the automatic flow to present the user with the consequences of their actions — restoring their capacity to decide consciously.
+        <p style="font-size:11px;color:#666;margin-top:1em;letter-spacing:0.04em;">Category: Feedback & Awareness · Level: Interruptive · Deck: Friction Patterns</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ANOTHER / DECK TABLE -->
+<div id="page-another">
+  <button class="cards-back" onclick="showHome()">← Back</button>
+  <div id="piles-bar"></div>
+  <a id="cards-download" href="cards.pdf" download>Download the deck (PDF)</a>
+  <div class="card-overlay" id="card-overlay">
+    <button class="card-overlay-close" id="card-overlay-close">×</button>
+    <div class="card-overlay-inner" id="card-overlay-inner"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+
+  const rand  = (a, b) => Math.random() * (b - a) + a;
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+  const physLayer   = document.getElementById('physics-layer');
+  const sectionText = document.getElementById('section-text');
+  const sectionMenu = document.getElementById('section-menu');
+  const pages       = document.querySelectorAll('.inner-page, #page-another');
+
+  /* ── NAVIGATION ── */
+  function showHome() {
+    document.body.classList.remove('page-open');
+    pages.forEach(p => p.classList.remove('active'));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function showPage(id) {
+    document.body.classList.add('page-open');
+    pages.forEach(p => p.classList.remove('active'));
+    clearPhysics();
+    const pageEl = document.getElementById('page-' + id);
+    if (!pageEl) return;
+    pageEl.classList.add('active');
+    window.scrollTo(0, 0);
+    if (id === 'another') {
+      setTimeout(initDeckBrowser, 80);
+    } else {
+      setTimeout(() => initPageAnim(pageEl), 60);
+    }
+  }
+
+  // Event delegation handles both original and dynamically cloned rows
+  document.addEventListener('click', e => {
+    const row = e.target.closest('.row[data-page]');
+    if (!row) return;
+    e.preventDefault();
+    showPage(row.dataset.page);
+  });
+
+  window.showHome = showHome;
+
+  /* ── PHYSICS ── */
+  let pParticles   = [];
+  let physRunning  = false;
+
+  function clearPhysics() {
+    pParticles.forEach(p => p.el.remove());
+    pParticles = [];
+    physRunning = false;
+  }
+
+  function getShapeData() {
+    const data = [];
+    document.querySelectorAll('.loop-menu .row, #section-menu .row').forEach(row => {
+      const img = row.querySelector('.slab img');
+      if (!img) return;
+      const r  = img.getBoundingClientRect();
+      const sy = window.scrollY;
+      const left  = r.left;
+      const right = r.right;
+      const top   = r.top + sy;
+      const bottom = r.bottom + sy;
+      const cx = (left + right) / 2;
+      const cy = (top + bottom) / 2;
+      data.push({ left, right, top, bottom, cx, cy });
+    });
+    return data;
+  }
+
+  // Returns the Y of the top surface of the diamond shape at a given X
+  // Diamond model: left-tip(left,cy) → top-center(cx,top) → right-tip(right,cy)
+  function surfaceY(shape, x) {
+    if (x < shape.left || x > shape.right) return null;
+    if (x <= shape.cx) {
+      const t = (x - shape.left) / (shape.cx - shape.left);
+      return shape.cy + t * (shape.top - shape.cy);
+    } else {
+      const t = (x - shape.cx) / (shape.right - shape.cx);
+      return shape.top + t * (shape.cy - shape.top);
+    }
+  }
+
+  function physicsStep() {
+    const shapes    = getShapeData();
+    const pageH     = document.body.scrollHeight;
+    const vpW       = window.innerWidth;
+
+    for (let i = pParticles.length - 1; i >= 0; i--) {
+      const p = pParticles[i];
+
+      // Gravity
+      p.vy   += 0.5;
+      p.x    += p.vx;
+      p.y    += p.vy;
+      p.rot  += p.vrot;
+      p.vrot *= 0.97;
+      p.vx   *= 0.995;
+
+      // Shape collisions
+      for (const s of shapes) {
+        const sy = surfaceY(s, p.x);
+        if (sy !== null && p.vy > 0 && p.y >= sy - 2 && p.y <= sy + Math.abs(p.vy) + 4) {
+          p.y = sy - 2;
+          const slideDir = p.x < s.cx ? -1 : 1;
+          const speed    = Math.abs(p.vy) * 0.7 + 1.5;
+          p.vx  = slideDir * speed;
+          p.vy  = -Math.abs(p.vy) * 0.08;
+          p.vrot = rand(-15, 15);
+        }
+      }
+
+      // Out of bounds → remove
+      if (p.y > pageH + 100 || p.x < -300 || p.x > vpW + 300) {
+        p.el.remove();
+        pParticles.splice(i, 1);
+        continue;
+      }
+
+      p.el.style.left      = p.x + 'px';
+      p.el.style.top       = p.y + 'px';
+      p.el.style.transform = `rotate(${p.rot}deg)`;
+    }
+
+    if (pParticles.length > 0) requestAnimationFrame(physicsStep);
+    else physRunning = false;
+  }
+
+  function launchLetters(chars) {
+    const sy = window.scrollY;
+    const fs = window.getComputedStyle(document.getElementById('landing-text')).fontSize;
+
+    chars.forEach(ch => {
+      if (!ch.textContent.trim()) return;
+      const r  = ch.getBoundingClientRect();
+      const px = r.left + r.width / 2;
+      const py = r.top  + sy + r.height / 2;
+
+      const el = document.createElement('span');
+      el.textContent  = ch.textContent;
+      el.style.fontSize = fs;
+      el.style.left   = px + 'px';
+      el.style.top    = py + 'px';
+      physLayer.appendChild(el);
+
+      pParticles.push({
+        el, x: px, y: py,
+        vx: rand(-2, 2),
+        vy: rand(1, 4),
+        rot: 0,
+        vrot: rand(-8, 8),
+      });
+    });
+
+    if (!physRunning && pParticles.length) {
+      physRunning = true;
+      requestAnimationFrame(physicsStep);
+    }
+  }
+
+  /* ── LANDING TEXT ── */
+  const landingPara = document.getElementById('landing-text');
+  const landingHint = document.getElementById('landing-hint');
+
+  const phrases = [
+    "Break the Loop is a research project and card game about intentional friction in digital interface design.",
+    "What would you do with the time you spend in loops? Is the interface working for you, or are you working for it?",
+    "Digital interfaces exploit behaviour through infinite scroll, variable rewards and intermittent notifications.",
+    "Friction is not a failure of design. It is a deliberate act of care. The loop is not inevitable.",
+    "Is your attention yours to give, or is it being taken? What friction would make you more free?",
+    "Intentional friction restores the capacity for reflection. It means embracing discomfort and valuing the pause.",
+  ];
+
+  let landIndex = 0, landChars = [], landAnimating = false;
+
+  function buildLandChars(text) {
+    landingPara.innerHTML = '';
+    text.split('').forEach(ch => {
+      if (ch === ' ') { landingPara.appendChild(document.createTextNode(' ')); return; }
+      const s = document.createElement('span');
+      s.className   = 'char';
+      s.textContent = ch;
+      landingPara.appendChild(s);
+    });
+    return [...landingPara.querySelectorAll('.char')];
+  }
+
+  async function riseIn(chars) {
+    const vh = window.innerHeight;
+    landingPara.getBoundingClientRect(); // force layout
+    const rise = chars.map(ch => {
+      const r = ch.getBoundingClientRect();
+      return ch.animate([
+        { transform: `translate(${rand(-20,20)}px,${vh - r.top + rand(60,200)}px) rotate(${rand(-35,35)}deg)`, opacity: 0 },
+        { transform: 'translate(0,0) rotate(0deg)', opacity: 1 }
+      ], { duration: rand(550, 1000), delay: rand(0, 180), fill: 'forwards', easing: 'cubic-bezier(0.1,0,0.3,1)' });
+    });
+    try { await Promise.all(rise.map(a => a.finished)); } catch {}
+    chars.forEach(ch => {
+      ch.getAnimations().forEach(a => { try { a.commitStyles(); a.cancel(); } catch {} });
+      ch.style.transform = ''; ch.style.opacity = '';
+    });
+  }
+
+  async function scatterLanding() {
+    if (landAnimating) return;
+    landAnimating = true;
+    landingHint.classList.add('hidden');
+
+    // Launch letters into physics
+    launchLetters(landChars);
+    landChars.forEach(ch => { ch.style.opacity = '0'; });
+
+    // Scroll to menu smoothly — wait a bit so letters are already falling
+    await sleep(800);
+    sectionMenu.scrollIntoView({ behavior: 'smooth' });
+    await sleep(1200);
+
+    // Prepare next phrase so the text is ready if they scroll back up
+    landIndex = (landIndex + 1) % phrases.length;
+    landChars = buildLandChars(phrases[landIndex]);
+    landAnimating = false;
+    landingHint.classList.remove('hidden');
+  }
+
+  // Init: rise in first phrase
+  landChars = buildLandChars(phrases[0]);
+  setTimeout(async () => {
+    await riseIn(landChars);
+  }, 300);
+
+  document.getElementById('section-text').addEventListener('click', scatterLanding);
+
+  /* ── INNER PAGE ANIMATIONS ── */
+  function initPageAnim(pageEl) {
+    const paras = pageEl.querySelectorAll('.body-text p');
+    paras.forEach(para => {
+      if (para.dataset.split) return;
+      para.dataset.split = '1';
+      const children = [...para.childNodes];
+      para.innerHTML = '';
+      children.forEach(node => {
+        if (node.nodeType === Node.TEXT_NODE) {
+          node.textContent.split(' ').forEach((word, i, arr) => {
+            if (!word) return;
+            const s = document.createElement('span');
+            s.className   = 'scroll-word';
+            s.textContent = word;
+            para.appendChild(s);
+            if (i < arr.length - 1) para.appendChild(document.createTextNode(' '));
+          });
+        } else {
+          const s = document.createElement('span');
+          s.className = 'scroll-word';
+          s.appendChild(node.cloneNode(true));
+          para.appendChild(s);
+          para.appendChild(document.createTextNode(' '));
+        }
+      });
+    });
+
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const para = entry.target;
+        if (para.dataset.animated) return;
+        para.dataset.animated = '1';
+        obs.unobserve(para);
+        riseWords(para);
+      });
+    }, { threshold: 0.1, rootMargin: '-10% 0px -45% 0px' });
+    paras.forEach(p => obs.observe(p));
+
+    const cards = pageEl.querySelectorAll('.gallery-card');
+    if (cards.length) {
+      cards.forEach(c => { if (!c.dataset.animated) c.style.opacity = '0'; });
+      const go = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          const card = entry.target;
+          if (card.dataset.animated) return;
+          card.dataset.animated = '1';
+          go.unobserve(card);
+          const idx = [...cards].indexOf(card);
+          const vw  = window.innerWidth, vh = window.innerHeight;
+          const r   = card.getBoundingClientRect();
+          card.animate([
+            { transform: `translate(${(idx%2===0?-vw*0.4:vw*0.4)+rand(-30,30)}px,${vh-r.top+rand(40,120)}px) rotate(${rand(-8,8)}deg)`, opacity: 0 },
+            { transform: 'translate(0,0) rotate(0deg)', opacity: 1 }
+          ], { duration: rand(700,1100), delay: idx*80, fill: 'forwards', easing: 'cubic-bezier(0.1,0,0.3,1)' });
+        });
+      }, { threshold: 0.05 });
+      cards.forEach(c => go.observe(c));
+    }
+  }
+
+  function riseWords(para) {
+    const words = [...para.querySelectorAll('.scroll-word')];
+    const vw = window.innerWidth;
+
+    words.forEach((w, i) => {
+      const r        = w.getBoundingClientRect();
+      const fromLeft = i % 2 === 0;
+
+      // Start: below and to the side — arcs up past reading position, curves back down into place
+      const startX   = fromLeft
+        ? -r.left - rand(60, 110)
+        : vw - r.left + rand(60, 110);
+      const startY   = rand(120, 180);               // further below reading position
+      const startRot = fromLeft ? rand(12, 22) : rand(-22, -12);
+
+      const midX = startX * 0.22;
+      const midY = -rand(30, 55);                    // peak just above reading position
+
+      w.animate([
+        { transform: `translate(${startX}px, ${startY}px) rotate(${startRot}deg)`, opacity: 0,   offset: 0    },
+        { transform: `translate(${midX}px,   ${midY}px)   rotate(${startRot * 0.15}deg)`, opacity: 1, offset: 0.58 },
+        { transform: 'translate(0,0) rotate(0deg)',                                        opacity: 1, offset: 1    }
+      ], {
+        duration: rand(1000, 1400),
+        delay:    i * 45 + rand(0, 20),
+        fill:     'forwards',
+        easing:   'cubic-bezier(0.25, 0.1, 0.25, 1)'
+      });
+    });
+  }
+
+  /* ── RANDOMIZER ── */
+  const platforms  = ['Instagram','TikTok','Spotify','YouTube','Twitter / X','LinkedIn','Netflix','Duolingo','WhatsApp','Amazon','Google Search','Reddit'];
+  const challenges = ['Reduce time spent on the platform','Encourage more intentional sharing','Prevent compulsive purchasing','Support healthier sleep habits','Limit filter bubble formation','Promote critical reading of information','Reduce notification overload','Encourage offline activity','Prevent doomscrolling','Support data privacy awareness'];
+  const patterns   = ['Betrayal','Blatant Lie','Checkpoint Starvation','Confront the User','Crash & Burn','Double Twist','Elimination of the Safetynet','Faux Finale','Forced Downtime','Induce Pauses','Limited Zones','Mimic','Misleading Standards','Offer Multiple Points of View','Remind of the Consequences','Request Additional Confirmations'];
+  const prompts    = [
+    (pl,ch,pa) => `How would you apply a <strong>${pa}</strong> to ${pl} in order to ${ch.toLowerCase()}?`,
+    (pl,ch,pa) => `Design a <strong>${pa}</strong> pattern for ${pl}. Your constraint: ${ch.toLowerCase()}.`,
+    (pl,ch,pa) => `You are the Friction Agent on ${pl}. Use <strong>${pa}</strong> to ${ch.toLowerCase()}.`,
+    (pl,ch,pa) => `Imagine ${pl} implemented <strong>${pa}</strong>. Would it ${ch.toLowerCase()}? Argue your case.`,
+  ];
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+
+  const flipper  = document.getElementById('rand-card-flipper');
+  const nameEl   = document.getElementById('rand-card-name');
+  const pEl      = document.getElementById('rand-platform');
+  const cEl      = document.getElementById('rand-challenge');
+  const paEl     = document.getElementById('rand-pattern');
+  const promptEl = document.getElementById('rand-prompt');
+  const btn      = document.getElementById('rand-btn');
+
+  let shuffling = false;
+  function doShuffle() {
+    if (shuffling) return;
+    shuffling = true;
+    [pEl, cEl, paEl, promptEl].forEach(el => el.classList.add('fade'));
+
+    // Phase 1: rotate to edge
+    flipper.style.transition = 'transform 0.18s ease-in';
+    flipper.style.transform  = 'rotateY(85deg)';
+
+    setTimeout(() => {
+      const pl = pick(platforms), ch = pick(challenges), pa = pick(patterns);
+      nameEl.textContent = pa; pEl.textContent = pl; cEl.textContent = ch; paEl.textContent = pa;
+      promptEl.innerHTML = pick(prompts)(pl, ch, pa);
+
+      // Phase 2: snap to other side, rotate back into view
+      flipper.style.transition = 'none';
+      flipper.style.transform  = 'rotateY(-85deg)';
+      flipper.offsetWidth;      // force reflow so transition fires cleanly
+      flipper.style.transition = 'transform 0.18s ease-out';
+      flipper.style.transform  = 'rotateY(0deg)';
+      [pEl, cEl, paEl, promptEl].forEach(el => el.classList.remove('fade'));
+      setTimeout(() => { shuffling = false; }, 200);
+    }, 190);
+  }
+  if (btn) btn.addEventListener('click', doShuffle);
+
+  /* ── SCAN ── */
+  const scanBtn = document.getElementById('scan-btn');
+  const video   = document.getElementById('video');
+  const label   = document.getElementById('scanner-label');
+  const result  = document.getElementById('scan-result');
+  let streaming = false;
+
+  function stopCamera() {
+    video.srcObject?.getTracks().forEach(t => t.stop());
+    video.srcObject = null; video.classList.remove('active');
+    label.style.display = ''; scanBtn.textContent = 'Activate camera';
+    result.classList.remove('visible'); streaming = false;
+  }
+  scanBtn?.addEventListener('click', async () => {
+    if (streaming) { stopCamera(); return; }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      video.srcObject = stream; video.classList.add('active');
+      label.style.display = 'none'; scanBtn.textContent = 'Stop camera'; streaming = true;
+      setTimeout(() => { if (streaming) result.classList.add('visible'); }, 3000);
+    } catch { label.textContent = 'Camera not available in this context.'; }
+  });
+
+
+  /* ── ANOTHER / DECK BROWSER ── */
+  const DECKS = [
+    {
+      id: 'patterns', label: 'Friction Patterns', tag: 'Friction\nPatterns',
+      cards: [
+        { name: 'Betrayal',                      cat: 'Consequence',  desc: 'The system reveals the consequences of past user behaviour at an unexpected moment, creating discomfort that prompts reflection on accumulated actions.', ex: 'Before starting a new session, the platform shows exactly how much time the user spent the previous week.' },
+        { name: 'Blatant Lie',                   cat: 'Transparency', desc: 'A deliberate falsehood in the interface that forces the user to question what they are seeing and reconsider their trust in the system.', ex: 'A progress bar that falsely claims a task is "almost done" to keep users engaged longer than necessary.' },
+        { name: 'Checkpoint Starvation',         cat: 'Consequence',  desc: 'Removes or delays the ability to save progress, creating a sense of real consequence and investment in the interaction.', ex: 'A writing tool that requires reaching a minimum word count before enabling the save function.' },
+        { name: 'Confront the User',             cat: 'Interruption', desc: 'Interrupts the automatic flow to present the user with the direct consequences of their actions, restoring their capacity to decide consciously.', ex: 'Before confirming a purchase, the interface shows the full cost including all future subscription fees.' },
+        { name: 'Crash & Burn',                  cat: 'Consequence',  desc: 'Deliberately terminates the current session or resets state to restore agency and create a clear boundary around the interaction.', ex: 'A social media feed that stops loading after 30 minutes and requires a deliberate restart to continue.' },
+        { name: 'Double Twist',                  cat: 'Reflection',   desc: 'Subverts the user\'s expectations twice in sequence — creating surprise and a moment of genuine reflection on assumptions.', ex: 'An interface that confirms an action and then immediately reveals an unexpected implication of that action.' },
+        { name: 'Elimination of the Safetynet', cat: 'Consequence',  desc: 'Removes undo, restore, or cancel options to make actions feel genuinely consequential and encourage more deliberate decision-making.', ex: 'A message that cannot be unsent, with a clear and prominent warning shown before sending.' },
+        { name: 'Faux Finale',                   cat: 'Reflection',   desc: 'Creates a false sense of completion before revealing more depth or content, challenging the assumption that the user has fully engaged.', ex: 'A course platform that marks a module complete and then surfaces related concepts the user had not considered.' },
+        { name: 'Forced Downtime',               cat: 'Interruption', desc: 'Introduces mandatory waiting periods that cannot be bypassed, creating space for reflection and breaking cycles of continuous engagement.', ex: 'A news app that limits reading to a set number of articles per day with no option to bypass the limit.' },
+        { name: 'Induce Pauses',                 cat: 'Interruption', desc: 'Deliberately slows transitions or responses to create natural moments of pause and reflection within the flow of use.', ex: 'A checkout flow with a brief intentional delay before the final purchase confirmation is processed.' },
+        { name: 'Limited Zones',                 cat: 'Boundary',     desc: 'Restricts access to parts of the interface to create intentional boundaries around certain types of content or behaviour.', ex: 'A social feed that limits how many profiles a user can follow to encourage intentional connection choices.' },
+        { name: 'Mimic',                         cat: 'Reflection',   desc: 'Reflects the user\'s own behaviour back to them in a way that prompts awareness of patterns they may not have consciously noticed.', ex: 'A weekly screen-time summary presented as a visual mirror of the user\'s daily routines and habits.' },
+        { name: 'Misleading Standards',          cat: 'Perspective',  desc: 'Presents alternative norms or statistics to challenge assumptions about what constitutes normal or expected behaviour.', ex: 'Showing that most users spend less than 10 minutes per day on the platform, reframing the user\'s own usage.' },
+        { name: 'Offer Multiple Points of View', cat: 'Perspective',  desc: 'Forces the user to consider at least two alternative perspectives before proceeding with an action or decision.', ex: 'Before posting, the platform presents counter-arguments to the content the user is about to share.' },
+        { name: 'Remind of the Consequences',   cat: 'Consequence',  desc: 'Makes the downstream effects of an action visible before it is taken, giving the user the information they need to decide consciously.', ex: 'Before deleting an account, the system lists all data, connections and history that will be permanently removed.' },
+        { name: 'Request Additional Confirmations', cat: 'Interruption', desc: 'Adds deliberate friction to irreversible or high-impact actions through multiple confirmation steps, slowing down impulsive decisions.', ex: 'A finance app that requires three confirmations and a typed reason before processing a large transfer.' },
+      ]
+    },
+    {
+      id: 'platforms', label: 'Platforms', tag: 'Platform',
+      cards: [
+        { name: 'Instagram',     cat: 'Social Media',        desc: 'Photo and video sharing platform with stories, reels, direct messaging and a curated algorithmic feed optimised for engagement and time spent.' },
+        { name: 'TikTok',        cat: 'Social Media',        desc: 'Short-form video platform with a highly aggressive recommendation algorithm designed for continuous, uninterrupted viewing.' },
+        { name: 'YouTube',       cat: 'Streaming',           desc: 'Long-form video platform with autoplay, personalised recommendations and a subscription model that incentivises maximum watch time.' },
+        { name: 'Spotify',       cat: 'Streaming',           desc: 'Music and podcast streaming service with personalised playlists, daily mixes and continuous queue functionality.' },
+        { name: 'Twitter / X',   cat: 'Social Media',        desc: 'Real-time microblogging and news platform with an algorithm-driven feed, notifications and trending content designed for high-frequency use.' },
+        { name: 'LinkedIn',      cat: 'Professional Network',desc: 'Professional networking platform with feeds, messaging, job listings and engagement-driven content promotion.' },
+        { name: 'Netflix',       cat: 'Streaming',           desc: 'Video streaming service with autoplay, personalised recommendations and a catalogue designed to maximise time spent on platform.' },
+        { name: 'Duolingo',      cat: 'EdTech',              desc: 'Language learning app with streak mechanics, gamified rewards and daily notifications designed to build habitual, near-compulsive use.' },
+        { name: 'WhatsApp',      cat: 'Messaging',           desc: 'Messaging platform with read receipts, group chats, status updates and near-instant delivery expectations that create social pressure.' },
+        { name: 'Amazon',        cat: 'E-Commerce',          desc: 'Online retail platform with one-click purchasing, personalised recommendations and friction-minimised checkout flows.' },
+        { name: 'Google Search', cat: 'Search',              desc: 'Search engine and information gateway with personalised results, featured snippets and advertising integration throughout the experience.' },
+        { name: 'Reddit',        cat: 'Community',           desc: 'Community-based discussion platform with upvoting, infinite scroll and a reward system built around karma and peer recognition.' },
+      ]
+    },
+    {
+      id: 'challenges', label: 'Ethical Challenges', tag: 'Ethical\nChallenge',
+      cards: [
+        { name: 'Time & Attention',    cat: 'Time & Attention',       desc: 'Does your application respect the time users spend on it, or does it extract attention without offering equivalent value in return?' },
+        { name: 'Meaningful Engagement', cat: 'Time & Attention',     desc: 'Is the engagement your interface creates meaningful, or compulsive? Would users describe time spent on your product as time well used?' },
+        { name: 'Time Audit',          cat: 'Time & Attention',       desc: 'If users could see exactly how much time they spend on your product each week, would they be comfortable with that number?' },
+        { name: 'Reason to Return',    cat: 'Meaningful Interactions',desc: 'Why would users return to your product if not out of habit or dependency? What genuine value does it offer that they would seek out consciously?' },
+        { name: 'Genuine Offer',       cat: 'Meaningful Interactions',desc: 'What does your application genuinely offer its users beyond engagement metrics? Is this communicated clearly in the interface?' },
+        { name: 'Worth the Attention', cat: 'Meaningful Interactions',desc: 'Is the value your product provides worth the attention it requires? How would you measure this from the user\'s perspective, not the platform\'s?' },
+        { name: 'Informed Consent',    cat: 'Manipulation & Consent', desc: 'Are users fully aware of what they agree to when they interact with your interface? Are the terms of the relationship genuinely transparent?' },
+        { name: 'Decision Architecture', cat: 'Manipulation & Consent', desc: 'Does your design make it easier or harder for users to make informed decisions? Which choices does your interface make visible, and which does it obscure?' },
+        { name: 'Visible Consequences', cat: 'Manipulation & Consent', desc: 'Would users make the same choices if all consequences were made fully visible before acting? What would change if they could see everything?' },
+        { name: 'Exit Design',         cat: 'Autonomy & Dependency',  desc: 'Does your interface make it genuinely easy for users to leave, pause or take a break? Or does it create obstacles and friction against stopping?' },
+        { name: 'Intentional Use',     cat: 'Autonomy & Dependency',  desc: 'Is your product designed to be used intentionally, or to be impossible to stop using? What is the difference between these two versions of your interface?' },
+        { name: 'Who Does It Serve',   cat: 'Autonomy & Dependency',  desc: 'Who does your interface ultimately serve — the user or the platform? When these interests conflict, whose side does the design take?' },
+        { name: 'Without Metrics',     cat: 'Value & Continuity',     desc: 'What would change in your design if you could not measure engagement, time-on-platform or return visits? What would you still care about?' },
+        { name: 'Long-Term Value',     cat: 'Value & Continuity',     desc: 'How does your interface create long-term value for users rather than short-term attention? Is there a version of your product that makes users more capable over time?' },
+        { name: 'User Independence',   cat: 'Value & Continuity',     desc: 'If your users became more independent and self-sufficient over time, would your product still work? Is dependency a feature or a flaw in your design?' },
+      ]
+    },
+    {
+      id: 'flow', label: 'Flow', tag: 'Flow',
+      cards: [
+        { name: 'Onboarding',    cat: 'Entry',         desc: 'The first-time user experience. Screens that introduce the product, set expectations and guide the user through initial setup and orientation.' },
+        { name: 'Home / Feed',   cat: 'Navigation',    desc: 'The main content stream. A dynamically populated list or grid that serves as the central hub of the user\'s activity within the product.' },
+        { name: 'Detail View',   cat: 'Content',       desc: 'An expanded view of a single item — a post, product, article or profile — with full content and all available actions for that item.' },
+        { name: 'Profile',       cat: 'Identity',      desc: 'The user\'s identity space. Contains personal information, history, settings and the user\'s relationship with the platform over time.' },
+        { name: 'Search',        cat: 'Discovery',     desc: 'A discovery and filtering interface. Allows users to find content, people or products through direct query, browsing or filter application.' },
+        { name: 'Form',          cat: 'Input',         desc: 'A data entry screen. Collects information from the user through text fields, selections, toggles and other input mechanisms.' },
+        { name: 'Settings',      cat: 'Configuration', desc: 'Preferences and configuration. Allows users to control their experience, notifications, privacy settings and account details.' },
+        { name: 'Notification',  cat: 'Alert',         desc: 'Alert and message screens. Surfaces updates, responses and system messages that request or demand the user\'s attention.' },
+        { name: 'Checkout',      cat: 'Transaction',   desc: 'Purchase or action confirmation flow. The sequence of screens that completes a transaction, subscription or irreversible action.' },
+        { name: 'Modal / Dialog', cat: 'Overlay',      desc: 'An interrupting overlay that demands a response before the user can continue. Used for confirmations, alerts and focused inputs.' },
+        { name: 'Empty State',   cat: 'Status',        desc: 'Screens shown when content is absent — no results, no activity, no data. How the product communicates and handles absence.' },
+        { name: 'Error State',   cat: 'Status',        desc: 'Screens shown when something goes wrong. Communicates what happened, explains the failure and offers a clear path forward.' },
+        { name: 'Dashboard',     cat: 'Overview',      desc: 'A summary view that aggregates multiple data points or activity streams into a single readable overview.' },
+        { name: 'Tutorial',      cat: 'Guidance',      desc: 'Guided instruction screens that teach users how to use the product. Can be inline, overlaid or delivered step-by-step.' },
+        { name: 'Navigation',    cat: 'Structure',     desc: 'Menus, tabs and wayfinding elements. The structural layer that enables movement between sections and levels of the product.' },
+      ]
+    },
+    {
+      id: 'connectors', label: 'Connectors', tag: 'Connector',
+      cards: [
+        { name: 'Forward →',    cat: 'Linear',   desc: 'A direct progression from one screen to the next. The user moves forward in the flow through an explicit and intentional action.' },
+        { name: 'Back ←',       cat: 'Linear',   desc: 'A return to the previous screen. The user undoes a step, reconsiders a choice, or navigates back through a completed action.' },
+        { name: 'Branch ⋔',     cat: 'Decision', desc: 'A decision point with multiple possible paths. The user\'s choice or the system\'s logic determines which path is taken from this point.' },
+        { name: 'Loop ↺',       cat: 'Repeat',   desc: 'A return to a previous point in the flow. The user is brought back to an earlier screen, intentionally by design or automatically by the system.' },
+        { name: 'Skip ⤳',       cat: 'Optional', desc: 'An optional bypass of a step. The user can choose to proceed without engaging with a screen or completing an action.' },
+        { name: 'Dead End ✕',   cat: 'Terminal', desc: 'A terminal point with no forward progression. The flow stops here — the user must go back, start over, or exit the product.' },
+      ]
+    },
+  ];
+
+  let activeCardIdx  = null;
+  let zoomDeckId     = null;
+  const spreadCards  = {}; // deckId → [el, ...]
+
+  const pilesBar         = document.getElementById('piles-bar');
+  const cardOverlay      = document.getElementById('card-overlay');
+  const cardOverlayInner = document.getElementById('card-overlay-inner');
+  const cardOverlayClose = document.getElementById('card-overlay-close');
+  const pageAnother      = document.getElementById('page-another');
+
+  // Each deck spreads into its own zone (fraction of viewport width)
+  // [0] = left edge fraction, [1] = right edge fraction, [2] = vertical center fraction
+  const ZONES = [
+    [0.0,  0.22, 0.38], // Friction Patterns — left
+    [0.18, 0.40, 0.45], // Platforms         — left-center
+    [0.36, 0.64, 0.35], // Challenges        — center
+    [0.60, 0.82, 0.45], // Flow              — right-center
+    [0.78, 1.0,  0.38], // Connectors        — right
+  ];
+
+  function initDeckBrowser() {
+    activeCardIdx = null; zoomDeckId = null;
+    pilesBar.innerHTML = '';
+    // clear any leftover table cards
+    pageAnother.querySelectorAll('.table-card').forEach(c => c.remove());
+    Object.keys(spreadCards).forEach(k => delete spreadCards[k]);
+    cardOverlay.classList.remove('active');
+
+    DECKS.forEach((deck, i) => {
+      const slot = document.createElement('div');
+      slot.className = 'pile-slot';
+      slot.dataset.id = deck.id;
+      slot.innerHTML = `
+        <div class="pile-visual">
+          <div class="pile-card-bg"></div>
+          <div class="pile-card-bg"></div>
+          <div class="pile-card-top">
+            <span class="pile-card-tag">${deck.tag.replace(/\n/g,'<br>')}</span>
+            <span class="pile-card-count">${deck.cards.length}</span>
+          </div>
+        </div>
+        <span class="pile-label">${deck.label}</span>`;
+      slot.addEventListener('click', () => toggleDeck(deck.id, i, slot));
+      pilesBar.appendChild(slot);
+    });
+  }
+
+  function toggleDeck(deckId, deckIdx, slotEl) {
+    if (slotEl.classList.contains('active')) {
+      slotEl.classList.remove('active');
+      collapseDeck(deckId, slotEl);
+    } else {
+      slotEl.classList.add('active');
+      spreadDeck(deckId, deckIdx, slotEl);
+    }
+  }
+
+  function spreadDeck(deckId, deckIdx, slotEl) {
+    const deck  = DECKS.find(d => d.id === deckId);
+    const n     = deck.cards.length;
+    const pRect = slotEl.getBoundingClientRect();
+    const aRect = pageAnother.getBoundingClientRect();
+    const pileCX = pRect.left - aRect.left + pRect.width  / 2;
+    const pileCY = pRect.top  - aRect.top  + pRect.height / 2;
+
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const CARD_W = Math.min(110, Math.round(vw * 0.12));
+    const CARD_H = CARD_W * 3.5 / 2.5;
+
+    // Each deck has its own independent zone on screen.
+    // Zone: [arcCx_frac, arcCy_frac, arcR_frac, span_deg]
+    //   arcCx  = horizontal centre of this spread  (fraction of vw)
+    //   arcCy  = arc origin, below the spread      (fraction of vh, can exceed 1)
+    //   arcR   = radius — larger = flatter/higher arc (fraction of vh)
+    //   span   = total angular width in degrees, centred on 270° (straight up)
+    const ZONES = [
+      [0.50, 1.95, 1.85,  30],  // Friction Patterns  — top middle
+      [0.18, 2.08, 1.38,  20],  // Flow               — central left
+      [0.78, 1.90, 1.45,  30],  // Ethical Challenges — central right
+      [0.22, 1.90, 1.45,  30],  // Platforms          — bottom left
+      [0.82, 2.08, 1.38,  20],  // Connectors         — bottom right
+    ];
+
+    const [cxF, cyF, rF, span] = ZONES[deckIdx];
+    const arcCx   = vw * cxF;
+    const arcCy   = vh * cyF;
+    const arcR    = vh * rF;
+    const degStart = 270 - span / 2;
+
+    spreadCards[deckId] = [];
+
+    deck.cards.forEach((card, i) => {
+      const el = document.createElement('div');
+      el.className = 'table-card';
+      el.innerHTML = `<span class="table-card-tag">${deck.tag.replace(/\n/g,'<br>')}</span><span class="table-card-name">${card.name}</span>`;
+      el.style.width  = CARD_W + 'px';
+      el.style.zIndex = deckIdx * 20 + i;
+      el.style.left      = (pileCX - CARD_W / 2) + 'px';
+      el.style.top       = (pileCY - CARD_H / 2) + 'px';
+      el.style.transform = `rotate(${rand(-8,8)}deg) scale(0.8)`;
+      el.style.opacity   = '0';
+      pageAnother.appendChild(el);
+
+      const t        = n === 1 ? 0.5 : i / (n - 1);
+      const deg      = degStart + t * span;
+      const rad      = deg * Math.PI / 180;
+      const finalX   = arcCx + arcR * Math.cos(rad) - CARD_W / 2;
+      const finalY   = Math.min(arcCy + arcR * Math.sin(rad) - CARD_H / 2, vh - 165);
+      const finalRot = deg - 270 + rand(-2, 2);
+
+      setTimeout(() => {
+        el.style.opacity   = '1';
+        el.style.left      = finalX + 'px';
+        el.style.top       = finalY + 'px';
+        el.style.transform = `rotate(${finalRot}deg)`;
+      }, i * 55);
+
+      el.addEventListener('click', () => openCard(deckId, i));
+      spreadCards[deckId].push(el);
+    });
+  }
+
+  function collapseDeck(deckId, slotEl) {
+    const cards = spreadCards[deckId] || [];
+    const pRect = slotEl.getBoundingClientRect();
+    const aRect = pageAnother.getBoundingClientRect();
+    const pileCX = pRect.left - aRect.left + pRect.width  / 2;
+    const pileCY = pRect.top  - aRect.top  + pRect.height / 2;
+    const CARD_W = 80, CARD_H = 80 * 3.5 / 2.5;
+
+    cards.forEach((el, i) => {
+      setTimeout(() => {
+        el.style.left      = (pileCX - CARD_W / 2) + 'px';
+        el.style.top       = (pileCY - CARD_H / 2) + 'px';
+        el.style.transform = `rotate(${rand(-5,5)}deg) scale(0.85)`;
+      }, i * 30);
+      setTimeout(() => el.remove(), i * 30 + 700);
+    });
+    delete spreadCards[deckId];
+  }
+
+  function openCard(deckId, idx) {
+    const deck = DECKS.find(d => d.id === deckId);
+    const card = deck.cards[idx];
+    zoomDeckId = deckId; activeCardIdx = idx;
+
+    // bring clicked card visually to front
+    const cardEls = spreadCards[deckId] || [];
+    cardEls.forEach((el, i) => { el.style.zIndex = 50 + i; });
+    if (cardEls[idx]) cardEls[idx].style.zIndex = 400;
+
+    cardOverlayInner.innerHTML = `
+      <div class="card-face-large">
+        <span class="card-face-tag">${deck.tag.replace(/\n/g,'<br>')}</span>
+        <span class="card-face-cat">${card.cat || ''}</span>
+        <span class="card-face-name">${card.name}</span>
+      </div>
+      <div class="card-info-panel">
+        <h2>${card.name}</h2>
+        <p class="card-info-deckcat">${deck.label}${card.cat ? ' · ' + card.cat : ''}</p>
+        <p class="card-info-desc">${card.desc || ''}</p>
+        ${card.ex ? `<p class="card-info-ex-label">Example</p><p class="card-info-ex">${card.ex}</p>` : ''}
+        <div class="card-overlay-nav">
+          <button class="card-nav-btn" id="card-prev" ${idx === 0 ? 'disabled' : ''}>← Prev</button>
+          <span class="card-nav-count">${idx + 1} / ${deck.cards.length}</span>
+          <button class="card-nav-btn" id="card-next" ${idx === deck.cards.length - 1 ? 'disabled' : ''}>Next →</button>
+        </div>
+      </div>`;
+
+    cardOverlayInner.querySelector('#card-prev')?.addEventListener('click', () => openCard(deckId, idx - 1));
+    cardOverlayInner.querySelector('#card-next')?.addEventListener('click', () => openCard(deckId, idx + 1));
+    cardOverlay.classList.add('active');
+  }
+
+  function closeCard() { cardOverlay.classList.remove('active'); }
+
+  cardOverlayClose.addEventListener('click', closeCard);
+  cardOverlay.addEventListener('click', e => { if (e.target === cardOverlay) closeCard(); });
+  document.addEventListener('keydown', e => {
+    if (!cardOverlay.classList.contains('active')) return;
+    if (e.key === 'Escape') { closeCard(); return; }
+    if (!zoomDeckId) return;
+    const deck = DECKS.find(d => d.id === zoomDeckId);
+    if (e.key === 'ArrowRight' && activeCardIdx < deck.cards.length - 1) openCard(zoomDeckId, activeCardIdx + 1);
+    if (e.key === 'ArrowLeft'  && activeCardIdx > 0)                     openCard(zoomDeckId, activeCardIdx - 1);
+  });
+
+})();
+</script>
+</body>
+</html>
