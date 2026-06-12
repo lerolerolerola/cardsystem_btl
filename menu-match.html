@@ -495,6 +495,16 @@
     .back-btn { left: 24px; top: 24px; }
     .page-title { margin-bottom: 32px; }
 
+    /* scan page — give title room and make viewfinder fill phone camera (16:9) */
+    #page-scan .inner-wrap { padding-top: 8px; }
+    #page-scan .page-title { margin-bottom: 16px; }
+    #page-scan .body-text  { margin-bottom: 16px; }
+    #page-scan .body-text p { font-size: 14px; }
+    .scan-viewfinder {
+      max-width: none;
+      aspect-ratio: 16/9;
+    }
+
     /* card gallery in rules */
     .card-gallery { grid-template-columns: repeat(2, 1fr); }
 
@@ -557,10 +567,11 @@
     display: flex; align-items: center; justify-content: center;
   }
   /* MindAR injects video (z-index:-2) + canvas — override so they fill and show */
-  .scan-viewfinder video {
-    position: absolute; inset: 0;
+  .scan-viewfinder video,
+  .scan-viewfinder video * {
+    position: absolute !important; inset: 0 !important;
     width: 100% !important; height: 100% !important;
-    object-fit: cover;
+    object-fit: cover !important;
     z-index: 1 !important;   /* MindAR sets -2; we need it above the background */
   }
   .scan-viewfinder canvas {
@@ -1417,6 +1428,33 @@
       await mindarInstance.start();
 
       renderer.setAnimationLoop(() => renderer.render(scene, camera));
+
+      // Force every element MindAR injected (video, canvas, wrapper divs) to fill
+      // the viewfinder — MindAR sometimes creates intermediate divs with fixed sizes
+      scanViewfinder.querySelectorAll('video, canvas').forEach(el => {
+        el.style.setProperty('position', 'absolute', 'important');
+        el.style.setProperty('top',    '0',    'important');
+        el.style.setProperty('left',   '0',    'important');
+        el.style.setProperty('width',  '100%', 'important');
+        el.style.setProperty('height', '100%', 'important');
+        if (el.tagName === 'VIDEO') {
+          el.style.setProperty('object-fit', 'cover', 'important');
+          el.style.setProperty('z-index',    '1',     'important');
+        } else {
+          el.style.setProperty('z-index', '2', 'important');
+        }
+      });
+      // Also fix any intermediate wrapper divs MindAR may have added
+      Array.from(scanViewfinder.children).forEach(child => {
+        if (child.tagName !== 'DIV' || child.classList.contains('scan-corner') || child.classList.contains('scan-line') || child.classList.contains('scan-status')) return;
+        if (child.querySelector('video, canvas')) {
+          child.style.setProperty('position', 'absolute', 'important');
+          child.style.setProperty('inset', '0', 'important');
+          child.style.setProperty('width',  '100%', 'important');
+          child.style.setProperty('height', '100%', 'important');
+          child.style.setProperty('overflow', 'hidden', 'important');
+        }
+      });
 
       scanViewfinder.classList.add('scanning');
       scanStatusEl.textContent = 'scanning…';
