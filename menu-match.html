@@ -260,6 +260,7 @@
     padding: 0 4px; font-weight: 600;
   }
   .rand-chip-pattern  { background: #c8aee8; }
+  a.rand-chip-pattern { text-decoration: none; color: inherit; }
   .rand-chip-platform { background: #f5c87a; }
   .rand-chip-challenge{ background: #a8d8f0; }
 
@@ -1239,10 +1240,10 @@
   const btn        = document.getElementById('rand-btn');
 
   const sentences = [
-    (pl,ch,pa) => `Apply<br><span class="rand-chip rand-chip-pattern">${pa}</span><br>on <span class="rand-chip rand-chip-platform">${pl}</span><br>to <span class="rand-chip rand-chip-challenge">${ch.toLowerCase()}</span>.`,
-    (pl,ch,pa) => `You are the Friction Agent on<br><span class="rand-chip rand-chip-platform">${pl}</span><br>Use <span class="rand-chip rand-chip-pattern">${pa}</span><br>to <span class="rand-chip rand-chip-challenge">${ch.toLowerCase()}</span>.`,
-    (pl,ch,pa) => `Design a<br><span class="rand-chip rand-chip-pattern">${pa}</span><br>for <span class="rand-chip rand-chip-platform">${pl}</span><br>Constraint: <span class="rand-chip rand-chip-challenge">${ch.toLowerCase()}</span>.`,
-    (pl,ch,pa) => `How would<br><span class="rand-chip rand-chip-pattern">${pa}</span><br>help <span class="rand-chip rand-chip-platform">${pl}</span> users<br><span class="rand-chip rand-chip-challenge">${ch.toLowerCase()}</span>?`,
+    (pl,ch,pa) => `Apply<br><a class="rand-chip rand-chip-pattern" href="${archiveUrl(pa)}" target="_blank" rel="noopener">${pa}</a><br>on <span class="rand-chip rand-chip-platform">${pl}</span><br>to <span class="rand-chip rand-chip-challenge">${ch.toLowerCase()}</span>.`,
+    (pl,ch,pa) => `You are the Friction Agent on<br><span class="rand-chip rand-chip-platform">${pl}</span><br>Use <a class="rand-chip rand-chip-pattern" href="${archiveUrl(pa)}" target="_blank" rel="noopener">${pa}</a><br>to <span class="rand-chip rand-chip-challenge">${ch.toLowerCase()}</span>.`,
+    (pl,ch,pa) => `Design a<br><a class="rand-chip rand-chip-pattern" href="${archiveUrl(pa)}" target="_blank" rel="noopener">${pa}</a><br>for <span class="rand-chip rand-chip-platform">${pl}</span><br>Constraint: <span class="rand-chip rand-chip-challenge">${ch.toLowerCase()}</span>.`,
+    (pl,ch,pa) => `How would<br><a class="rand-chip rand-chip-pattern" href="${archiveUrl(pa)}" target="_blank" rel="noopener">${pa}</a><br>help <span class="rand-chip rand-chip-platform">${pl}</span> users<br><span class="rand-chip rand-chip-challenge">${ch.toLowerCase()}</span>?`,
   ];
 
   let shuffling = false;
@@ -1257,7 +1258,7 @@
 
     setTimeout(() => {
       const pl = pick(platforms), ch = pick(challenges), pa = pick(patterns);
-      nameEl.textContent = pa;
+      nameEl.innerHTML = `<a href="${archiveUrl(pa)}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">${pa}</a>`;
 
       // New sentence
       sentenceEl.innerHTML = pick(sentences)(pl, ch, pa);
