@@ -271,6 +271,8 @@
     padding: 4px 14px; font-size: 11px; cursor: pointer;
     transition: border-color 0.15s;
     display: flex; align-items: center; gap: 6px;
+    text-decoration: none; color: inherit;
+    font-family: 'IBM Plex Mono', monospace;
   }
   .rand-alt-chip:hover { border-color: #111; }
   .rand-alt-dot { width: 7px; height: 7px; border-radius: 50%; background: #c8aee8; flex-shrink: 0; }
@@ -1260,10 +1262,10 @@
       // New sentence
       sentenceEl.innerHTML = pick(sentences)(pl, ch, pa);
 
-      // Alt pattern chips (3 others)
+      // Alt pattern chips (3 others) — link to Friction Design Archive
       const alts = pickN(patterns, 3, pa);
       altsEl.innerHTML = alts.map(a =>
-        `<span class="rand-alt-chip"><span class="rand-alt-dot"></span>${a}</span>`
+        `<a class="rand-alt-chip" href="${archiveUrl(a)}" target="_blank" rel="noopener"><span class="rand-alt-dot"></span>${a}</a>`
       ).join('');
 
       flipper.style.transition = 'none';
