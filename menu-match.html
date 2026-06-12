@@ -514,27 +514,26 @@
     /* shuffle */
     .rand-layout { grid-template-columns: 1fr; }
 
-    /* card overlay — full-screen opaque on mobile */
+    /* card overlay — full-screen opaque on mobile, card on top centered */
     .card-overlay {
-      padding: 16px 16px 32px;
+      padding: 56px 20px 40px;
       align-items: flex-start;
       overflow-y: auto;
       background: rgba(17,17,17,0.97);
     }
     .card-overlay-inner {
-      flex-direction: row;
-      align-items: flex-start;
-      gap: 16px;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
       width: 100%;
-      padding-top: 48px;
     }
-    .card-face-large { width: 80px; min-width: 80px; padding: 10px 8px; }
-    .card-face-name { font-size: 8px; }
-    .card-face-cat  { font-size: 7px; }
-    .card-info-panel { max-height: none; overflow-y: visible; flex: 1; }
-    .card-info-panel h2 { font-size: 18px; }
+    .card-face-large { width: 140px; min-width: 140px; padding: 14px 12px; }
+    .card-face-name { font-size: 12px; }
+    .card-face-cat  { font-size: 9px; }
+    .card-info-panel { max-height: none; overflow-y: visible; width: 100%; text-align: left; }
+    .card-info-panel h2 { font-size: 22px; }
     .card-info-desc { font-size: 14px; }
-    .card-overlay-close { top: 12px; right: 12px; font-size: 24px; }
+    .card-overlay-close { top: 14px; right: 16px; font-size: 26px; }
 
     /* download page: hide desktop scatter, show mobile browser */
     #page-another {
@@ -996,8 +995,9 @@
     for (let i = pParticles.length - 1; i >= 0; i--) {
       const p = pParticles[i];
 
-      // Gravity
-      p.vy   += 0.5;
+      // Gravity (slower on mobile so letters are visible before scroll)
+      const isMob = window.innerWidth < 700;
+      p.vy   += isMob ? 0.22 : 0.5;
       p.x    += p.vx;
       p.y    += p.vy;
       p.rot  += p.vrot;
@@ -1050,10 +1050,11 @@
       el.style.top    = py + 'px';
       physLayer.appendChild(el);
 
+      const mob = window.innerWidth < 700;
       pParticles.push({
         el, x: px, y: py,
-        vx: rand(-2, 2),
-        vy: rand(1, 4),
+        vx: rand(mob ? -1 : -2, mob ? 1 : 2),
+        vy: rand(mob ? 0.3 : 1, mob ? 1.5 : 4),
         rot: 0,
         vrot: rand(-8, 8),
       });
@@ -1123,8 +1124,8 @@
     launchLetters(landChars);
     landChars.forEach(ch => { ch.style.opacity = '0'; });
 
-    // Scroll to menu smoothly — wait a bit so letters are already falling
-    await sleep(800);
+    // Scroll to menu smoothly — wait longer on mobile so you can watch the letters fall
+    await sleep(window.innerWidth < 700 ? 1800 : 800);
     sectionMenu.scrollIntoView({ behavior: 'smooth' });
     await sleep(1200);
 
