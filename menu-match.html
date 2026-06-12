@@ -1124,9 +1124,13 @@
     launchLetters(landChars);
     landChars.forEach(ch => { ch.style.opacity = '0'; });
 
-    // Scroll to menu smoothly — wait longer on mobile so you can watch the letters fall
-    await sleep(window.innerWidth < 700 ? 1800 : 800);
-    sectionMenu.scrollIntoView({ behavior: 'smooth' });
+    // Scroll to menu — wait longer on mobile so letters are visibly falling first.
+    // Use window.scrollTo (not scrollIntoView) so iOS Safari doesn't block it
+    // outside the original gesture context.
+    const delay = window.innerWidth < 700 ? 1800 : 800;
+    await sleep(delay);
+    const targetY = sectionMenu.getBoundingClientRect().top + window.scrollY;
+    window.scrollTo({ top: targetY, behavior: 'smooth' });
     await sleep(1200);
 
     // Prepare next phrase so the text is ready if they scroll back up
