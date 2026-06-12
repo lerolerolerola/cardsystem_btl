@@ -1799,6 +1799,7 @@
 
   // Resolve card image: explicit img field, or slug-based lookup in cards/
   function cardImageSrc(deck, card) {
+    return ''; // images hidden temporarily — re-enable when ready
     if (card.img) return card.img;
     const slug = card.name.toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
