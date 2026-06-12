@@ -477,10 +477,13 @@
     /* prevent slab from causing horizontal scroll */
     #section-menu { overflow: hidden; }
     .slab { left: -24px; right: -24px; }
+    .slab img { width: 62%; }
+    .row { height: 150px; margin-top: -48px; }
+    .row:first-child { margin-top: 0; }
     .row.go-left:hover  .slab { transform: translateX(-120px); }
     .row.go-right:hover .slab { transform: translateX(120px); }
     /* keep labels inside the diamond on mobile */
-    .label { font-size: 13px; bottom: auto; top: 42%; }
+    .label { font-size: 14px; bottom: auto; top: 42%; }
     .row.go-left  .label { left: 30%; }
     .row.go-right .label { right: 30%; }
 
@@ -498,11 +501,13 @@
     /* shuffle */
     .rand-layout { grid-template-columns: 1fr; }
 
-    /* card overlay */
-    .card-overlay { padding: 20px 16px; }
-    .card-overlay-inner { flex-direction: column; align-items: center; gap: 24px; }
-    .card-face-large { width: 120px; min-width: 120px; }
-    .card-info-panel { max-height: none; }
+    /* card overlay — scrollable column on mobile */
+    .card-overlay { padding: 60px 20px 40px; align-items: flex-start; overflow-y: auto; }
+    .card-overlay-inner { flex-direction: column; align-items: center; gap: 20px; width: 100%; }
+    .card-face-large { width: 140px; min-width: 140px; }
+    .card-info-panel { max-height: none; overflow-y: visible; }
+    .card-info-panel h2 { font-size: 22px; }
+    .card-overlay-close { top: 16px; right: 16px; }
 
     /* download page: hide desktop scatter, show mobile browser */
     #page-another {
@@ -520,8 +525,8 @@
     #section-text { padding: 40px 24px; }
     #landing-hint { left: 24px; }
 
-    /* menu rows slightly smaller */
-    .row { height: 120px; margin-top: -28px; }
+    /* menu rows — keep same as 700px breakpoint */
+    .row { height: 150px; margin-top: -48px; }
 
     /* 2-col card grid on very small screens */
     .mob-card-grid { grid-template-columns: repeat(2, 1fr); }
@@ -690,7 +695,7 @@
     </a>
     <a class="row go-right" data-page="another" href="#">
       <div class="slab"><img src="forma.png" alt="">
-        <span class="label">DOWNLOAD</span>
+        <span class="label">EXPLORE</span>
       </div>
     </a>
   </div>
