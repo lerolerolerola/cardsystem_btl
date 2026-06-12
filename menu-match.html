@@ -4,15 +4,42 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MMAATTCCHH</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<!-- Import map lets the browser resolve bare "three" specifiers used by mind-ar -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.146.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.146.0/examples/jsm/"
+  }
+}
+</script>
+<!-- Load MindAR as a proper ES module; on load, expose it as window.MINDAR -->
+<script type="module">
+  try {
+    const { MindARThree } = await import('https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-three.prod.js');
+    window.MINDAR = { IMAGE: { MindARThree } };
+    window.__mindarReady = true;
+    window.dispatchEvent(new CustomEvent('mindar-ready'));
+    console.log('[MindAR] ready ✓');
+  } catch (e) {
+    console.error('[MindAR] failed to load:', e);
+    window.__mindarError = e.message || String(e);
+    window.dispatchEvent(new CustomEvent('mindar-ready'));
+  }
+</script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; }
 
   body {
     background: #fff34c;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: 'IBM Plex Mono', monospace;
     -webkit-font-smoothing: antialiased;
     position: relative;
+    overflow-x: hidden;
   }
 
   /* ── PHYSICS LAYER ── */
@@ -23,11 +50,10 @@
     height: 100%;
     pointer-events: none;
     z-index: 50;
-    overflow: hidden;
   }
   #physics-layer span {
     position: absolute;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: 'IBM Plex Mono', monospace;
     font-weight: 400;
     color: #111;
     pointer-events: none;
@@ -124,7 +150,7 @@
 
   .label {
     position: absolute;
-    top: 50%;
+    top: 40%;
     font-size: 20px;
     font-weight: 400;
     letter-spacing: 0.07em;
@@ -134,10 +160,10 @@
     z-index: 10;
     transition: transform 0.55s cubic-bezier(.56, .86, .59, 1);
   }
-  .row.go-left  .label { left: 230px;  bottom: 24px; transform: rotate(12deg); transform-origin: left bottom; }
-  .row.go-right .label { right: 218px; bottom: 24px; transform: rotate(-12deg); transform-origin: right bottom; }
-  .row.go-left:hover  .label { transform: rotate(12deg) translateX(-300px); }
-  .row.go-right:hover .label { transform: rotate(-12deg) translateX(300px); }
+  .row.go-left  .label { left: 28%;  bottom: 50px; transform: rotate(15deg); transform-origin: left bottom; }
+  .row.go-right .label { right: 28%; bottom: 50px; transform: rotate(-15deg); transform-origin: right bottom; }
+  /*.row.go-left:hover  .label { transform: rotate(12deg) translateX(-300px); }
+  .row.go-right:hover .label { transform: rotate(-12deg) translateX(300px); }*/
 
 
   /* ── INNER PAGES ── */
@@ -145,7 +171,7 @@
     display: none;
     min-height: 100vh;
     background: #fff;
-    padding: 60px 40px 100px;
+    padding: 80px 40px 100px;
   }
   .inner-page.active { display: block; }
 
@@ -156,15 +182,14 @@
   #page-about .inner-wrap { max-width: 740px; }
 
   .back-btn {
-    display: inline-block;
-    margin-bottom: 40px;
+    position: fixed; top: 32px; left: 40px;
     background: none; border: none;
     cursor: pointer;
     font-size: 13px; letter-spacing: 0.1em;
     text-transform: uppercase; color: #111;
-    padding: 0; opacity: 0.5;
+    padding: 0; opacity: 0.5; z-index: 200;
     transition: opacity 0.2s;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: 'IBM Plex Mono', monospace;
   }
   .back-btn:hover { opacity: 1; }
 
@@ -193,41 +218,65 @@
     gap: 16px; margin: 40px 0;
   }
   @media (max-width: 600px) { .card-gallery { grid-template-columns: repeat(2, 1fr); } }
-  .gallery-card { border: 1.5px solid #e0e0e0; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; }
-  .gallery-card-face { aspect-ratio: 2.5/3.5; padding: 10px; display: flex; flex-direction: column; }
+  .gallery-card { border: 1.5px dashed #ccc; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; }
+  .gallery-card-face { aspect-ratio: 1203/1340; padding: 0; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+  .gallery-card-face img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .gallery-card-face .gallery-card-tag { position: absolute; top: 8px; left: 8px; }
   .gallery-card-tag { font-size: 9px; letter-spacing: 0.05em; opacity: 0.6; line-height: 1.4; margin-bottom: auto; }
-  .gallery-card-info { padding: 10px 10px 12px; border-top: 1.5px solid #e0e0e0; }
+  .gallery-card-info { padding: 10px 10px 12px; border-top: 1.5px dashed #ccc; }
   .gallery-card-name { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
   .gallery-card-desc { font-size: 10px; line-height: 1.5; color: #666; }
 
-  .randomizer-wrap { display: grid; grid-template-columns: auto 1fr; gap: 48px; align-items: start; margin-top: 8px; }
-  @media (max-width: 560px) { .randomizer-wrap { grid-template-columns: 1fr; justify-items: center; } }
-  .rand-card-scene { width: 160px; aspect-ratio: 2.5/3.5; perspective: 600px; flex-shrink: 0; }
-  .rand-card-flipper { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; }
-  .rand-card-placeholder { width: 100%; height: 100%; border-radius: 8px; border: 1.5px solid #222; background: #fff; display: flex; flex-direction: column; padding: 12px; position: absolute; inset: 0; }
-  .rand-card-tag { font-size: 8px; letter-spacing: 0.05em; opacity: 0.5; line-height: 1.3; margin-bottom: auto; }
-  .rand-card-name { font-size: 13px; font-weight: 600; line-height: 1.3; }
-  .rand-info { display: flex; flex-direction: column; }
-  .rand-row { display: flex; flex-direction: column; padding: 12px 0; border-bottom: 1px solid #e8e8e8; }
-  .rand-label { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.4; margin-bottom: 4px; }
-  .rand-value { font-size: clamp(14px, 1.4vw, 17px); transition: opacity 0.2s; }
-  .rand-value.fade { opacity: 0; }
-  .rand-prompt { margin-top: 20px; font-size: 14px; line-height: 1.75; color: #444; min-height: 72px; transition: opacity 0.2s; }
-  .rand-prompt.fade { opacity: 0; }
-  .rand-btn { margin-top: 28px; background: #111; color: #fff34c; border: none; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; padding: 11px 24px; cursor: pointer; transition: background 0.2s; font-family: Arial, Helvetica, sans-serif; }
-  .rand-btn:hover { background: #333; }
+  .variants-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 20px; margin: 20px 0 32px;
+  }
+  .variant-card {
+    border: 1.5px dashed #ccc; border-radius: 6px;
+    padding: 18px 16px; display: flex; flex-direction: column; gap: 8px;
+  }
+  .variant-card strong { font-size: 13px; letter-spacing: 0.03em; }
+  .variant-card p { font-size: clamp(13px, 1.2vw, 15px); line-height: 1.75; color: #333; margin: 0; }
+  @media (max-width: 560px) { .variants-grid { grid-template-columns: 1fr; } }
 
-  .scan-wrap { max-width: 500px; }
-  .scan-wrap p { font-size: 15px; line-height: 1.75; margin-bottom: 24px; color: #111; }
-  .scanner-box { width: 100%; aspect-ratio: 4/3; border: 1.5px solid #111; position: relative; overflow: hidden; background: #f4f4f4; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
-  .scanner-box video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; }
-  .scanner-box video.active { display: block; }
-  .scanner-label { font-size: 12px; color: #999; }
-  .scan-btn { background: #111; color: #fff; border: none; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; padding: 11px 24px; cursor: pointer; margin-bottom: 24px; display: inline-block; transition: background 0.2s; font-family: Arial, Helvetica, sans-serif; }
-  .scan-btn:hover { background: #333; }
-  .scan-result { border: 1.5px solid #111; padding: 20px; font-size: 14px; line-height: 1.7; opacity: 0; transition: opacity 0.5s; }
-  .scan-result.visible { opacity: 1; }
-  .scan-result .pattern-name { font-size: 13px; font-weight: 600; background: #fff34c; padding: 3px 7px; display: inline-block; margin-bottom: 12px; }
+  .rand-layout { display: grid; grid-template-columns: 120px 1fr; gap: 48px; align-items: start; margin-top: 8px; }
+  @media (max-width: 560px) { .rand-layout { grid-template-columns: 1fr; } }
+  .rand-card-scene { width: 120px; aspect-ratio: 1204/1994; flex-shrink: 0; perspective: 600px; }
+  .rand-card-flipper { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; }
+  .rand-card-placeholder { width: 100%; height: 100%; border-radius: 5px; border: 1.5px dashed #111; background: #fff; display: flex; flex-direction: column; padding: 8px 6px; position: absolute; inset: 0; }
+  .rand-card-tag { font-size: 6px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.4; line-height: 1.4; margin-bottom: auto; font-family: 'IBM Plex Mono', monospace; }
+  .rand-card-name { font-size: 9px; font-weight: 600; line-height: 1.3; color: #111; font-family: 'IBM Plex Mono', monospace; }
+
+  .rand-info { display: flex; flex-direction: column; gap: 24px; }
+
+  .rand-sentence {
+    font-size: clamp(16px, 1.5vw, 20px);
+    font-weight: 400; line-height: 1.85; color: #111;
+    transition: opacity 0.2s;
+  }
+  .rand-sentence.fade { opacity: 0; }
+  .rand-chip {
+    display: inline; border-radius: 2px;
+    padding: 0 4px; font-weight: 600;
+  }
+  .rand-chip-pattern  { background: #c8aee8; }
+  .rand-chip-platform { background: #f5c87a; }
+  .rand-chip-challenge{ background: #a8d8f0; }
+
+  .rand-alts-label { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.4; margin-bottom: 10px; }
+  .rand-alts { display: flex; flex-wrap: wrap; gap: 8px; transition: opacity 0.2s; }
+  .rand-alts.fade { opacity: 0; }
+  .rand-alt-chip {
+    border: 1.5px dashed #ccc;
+    padding: 4px 14px; font-size: 11px; cursor: pointer;
+    transition: border-color 0.15s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .rand-alt-chip:hover { border-color: #111; }
+  .rand-alt-dot { width: 7px; height: 7px; border-radius: 50%; background: #c8aee8; flex-shrink: 0; }
+
+  .rand-btn { background: transparent; color: #111; border: 1.5px dashed #111; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; padding: 11px 24px; cursor: pointer; transition: opacity 0.2s; font-family: 'IBM Plex Mono', monospace; align-self: flex-start; }
+  .rand-btn:hover { opacity: 0.6; }
 
   /* ── ANOTHER / DECK TABLE ── */
   #page-another {
@@ -240,56 +289,55 @@
   #page-another.active { display: block; }
 
   .cards-back {
-    position: absolute; top: 28px; left: 40px;
+    position: fixed; top: 32px; left: 40px;
     background: none; border: none; cursor: pointer;
     font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase;
-    color: #111; opacity: 0.5; transition: opacity 0.2s; z-index: 100;
-    font-family: Arial, Helvetica, sans-serif;
+    color: #111; opacity: 0.5; transition: opacity 0.2s; z-index: 200;
+    font-family: 'IBM Plex Mono', monospace;
   }
   .cards-back:hover { opacity: 1; }
 
   /* piles bar at bottom center */
   #piles-bar {
-    position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%);
-    display: flex; gap: 20px; align-items: flex-end; z-index: 20;
+    position: absolute; bottom: 56px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 12px; align-items: flex-end; z-index: 20;
   }
 
-  .pile-slot { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; }
+  .pile-slot { display: flex; flex-direction: column-reverse; align-items: center; gap: 8px; cursor: pointer; }
 
-  .pile-visual { position: relative; width: 72px; height: 100px; transition: transform 0.2s; }
+  .pile-visual { position: relative; width: 90px; aspect-ratio: var(--pile-ar, 1203/1340); transition: transform 0.2s; }
   .pile-slot:hover .pile-visual { transform: translateY(-4px); }
   .pile-slot.active .pile-visual { transform: translateY(-8px); }
 
   .pile-card-bg {
-    position: absolute; width: 72px; height: 100px;
-    border-radius: 5px; border: 1.5px solid #111; background: #fff;
+    position: absolute; width: 90px; aspect-ratio: var(--pile-ar, 1203/1340);
+    border-radius: 5px; border: 1.5px dashed #111; background: #fff;
   }
   .pile-card-bg:nth-child(1) { transform: rotate(-4deg) translate(-2px, 2px); z-index: 1; }
   .pile-card-bg:nth-child(2) { transform: rotate(3deg)  translate(2px, 3px);  z-index: 0; }
 
   .pile-card-top {
     position: absolute; inset: 0; border-radius: 5px;
-    border: 1.5px solid #111; background: #fff; z-index: 2;
+    border: 1.5px dashed #111; background: #fff; z-index: 2;
     display: flex; flex-direction: column; padding: 8px 6px;
     transition: background 0.2s;
   }
-  .pile-slot.active .pile-card-top { background: #111; }
+  .pile-slot.active .pile-card-top { background: #fff; }
 
-  .pile-card-tag   { font-size: 6px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.4; line-height: 1.4; }
-  .pile-card-count { margin-top: auto; font-size: 18px; font-weight: 600; color: #111; line-height: 1; }
-  .pile-slot.active .pile-card-tag,
-  .pile-slot.active .pile-card-count { color: #fff34c; opacity: 1; }
+  .pile-card-tag   { font-size: 6px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.4; line-height: 1.4; font-family: 'IBM Plex Mono', monospace; }
+  .pile-card-count { margin-top: auto; font-size: 18px; font-weight: 600; color: #111; line-height: 1; font-family: 'IBM Plex Mono', monospace; }
+  .pile-slot.active .pile-card-tag { opacity: 0.4; }
+  .pile-slot.active .pile-card-count { color: #111; opacity: 1; }
 
-  .pile-label { font-size: 9px; letter-spacing: 0.07em; text-transform: uppercase; color: #111; text-align: center; max-width: 72px; line-height: 1.3; }
+  .pile-label { font-size: 9px; letter-spacing: 0.07em; text-transform: uppercase; color: #111; text-align: center; max-width: 90px; line-height: 1.3; min-height: calc(9px * 1.3 * 2); font-family: 'IBM Plex Mono', monospace; }
 
   /* cards scattered on the table */
   .table-card {
     position: absolute;
     width: 80px;
-    aspect-ratio: 2.5 / 3.5;
-    background: #fff; border: 1.5px solid #111; border-radius: 5px;
+    background: #fff; border: 1.5px dashed #111; border-radius: 5px;
     padding: 8px 6px; display: flex; flex-direction: column;
-    cursor: pointer; user-select: none;
+    cursor: pointer; user-select: none; overflow: hidden;
     transition: transform 0.65s cubic-bezier(0.15,0,0.3,1),
                 left      0.65s cubic-bezier(0.15,0,0.3,1),
                 top       0.65s cubic-bezier(0.15,0,0.3,1),
@@ -300,8 +348,17 @@
     box-shadow: 0 10px 28px rgba(0,0,0,0.18);
     z-index: 300 !important;
   }
-  .table-card-tag  { font-size: 6px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.4; line-height: 1.4; margin-bottom: auto; }
-  .table-card-name { font-size: 9px; font-weight: 600; line-height: 1.3; color: #111; }
+  .table-card-img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover; border-radius: 4px;
+    display: none;
+  }
+  .table-card-img.loaded { display: block; }
+  .table-card:has(.table-card-img.loaded) .table-card-tag,
+  .table-card:has(.table-card-img.loaded) .table-card-name { opacity: 0; }
+  .table-card-tag  { font-size: 6px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.4; line-height: 1.4; margin-bottom: auto; position: relative; z-index: 1; transition: opacity 0.2s; font-family: 'IBM Plex Mono', monospace; }
+  .table-card-name { font-size: 9px; font-weight: 600; line-height: 1.3; color: #111; position: relative; z-index: 1; transition: opacity 0.2s; font-family: 'IBM Plex Mono', monospace; }
 
   /* card overlay */
   .card-overlay {
@@ -316,20 +373,20 @@
     background: none; border: none; color: #fff;
     font-size: 28px; cursor: pointer; opacity: 0.6;
     transition: opacity 0.2s; z-index: 501;
-    font-family: Arial, Helvetica, sans-serif; line-height: 1;
+    font-family: 'IBM Plex Mono', monospace; line-height: 1;
   }
   .card-overlay-close:hover { opacity: 1; }
 
   .card-overlay-inner { display: flex; gap: 40px; align-items: flex-start; max-width: 760px; width: 100%; }
 
   .card-face-large {
-    width: 200px; min-width: 200px; aspect-ratio: 2.5 / 3.5;
-    background: #fff; border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.2);
+    width: 200px; min-width: 200px; aspect-ratio: 1203/1340;
+    background: #fff; border-radius: 10px; border: 1.5px dashed rgba(255,255,255,0.4);
     padding: 20px 16px; display: flex; flex-direction: column;
   }
-  .card-face-tag  { font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.4; line-height: 1.5; margin-bottom: auto; }
-  .card-face-cat  { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.5; margin-bottom: 6px; color: #111; }
-  .card-face-name { font-size: 16px; font-weight: 600; line-height: 1.2; color: #111; }
+  .card-face-tag  { font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.4; line-height: 1.5; margin-bottom: auto; font-family: 'IBM Plex Mono', monospace; }
+  .card-face-cat  { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.5; margin-bottom: 6px; color: #111; font-family: 'IBM Plex Mono', monospace; }
+  .card-face-name { font-size: 16px; font-weight: 600; line-height: 1.2; color: #111; font-family: 'IBM Plex Mono', monospace; }
 
   .card-info-panel { flex: 1; color: #fff; overflow-y: auto; max-height: 80vh; }
   .card-info-panel h2 { font-size: clamp(20px, 3vw, 30px); font-weight: 400; letter-spacing: 0.02em; margin-bottom: 6px; line-height: 1.1; }
@@ -340,10 +397,10 @@
 
   .card-overlay-nav { display: flex; gap: 12px; margin-top: 28px; align-items: center; }
   .card-nav-btn {
-    background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.12); border: 1px dashed rgba(255,255,255,0.5);
     color: #fff; padding: 8px 18px; font-size: 12px; letter-spacing: 0.1em;
     text-transform: uppercase; cursor: pointer; transition: background 0.2s;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: 'IBM Plex Mono', monospace;
   }
   .card-nav-btn:hover:not(:disabled) { background: rgba(255,255,255,0.22); }
   .card-nav-btn:disabled { opacity: 0.25; cursor: default; }
@@ -351,27 +408,247 @@
 
   #cards-download {
     position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
-    background: #111; color: #fff34c; border: none;
+    background: transparent; color: #111; border: 1.5px dashed #111;
     font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
     padding: 10px 20px; cursor: pointer; z-index: 20;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: 'IBM Plex Mono', monospace;
     text-decoration: none; display: inline-block; white-space: nowrap;
-    transition: background 0.2s;
+    transition: opacity 0.2s;
   }
-  #cards-download:hover { background: #333; }
+  #cards-download:hover { opacity: 0.6; }
 
-  @media (max-width: 600px) {
-    .card-overlay-inner { flex-direction: column; align-items: center; }
-    .card-face-large { width: 140px; min-width: 140px; }
-    #piles-bar { gap: 12px; }
-    .pile-visual { width: 56px; height: 78px; }
-    .pile-card-bg { width: 56px; height: 78px; }
+  /* ── MOBILE DECK BROWSER ── */
+  #mobile-deck-browser {
+    display: none;
+    padding: 80px 0 60px;
+  }
+  .mob-deck-section {
+    border-bottom: 1.5px dashed #111;
+  }
+  .mob-deck-section:first-child {
+    border-top: 1.5px dashed #111;
+  }
+  .mob-deck-header {
+    display: flex; align-items: center;
+    padding: 18px 0; cursor: pointer; gap: 12px;
+    user-select: none;
+  }
+  .mob-deck-name {
+    flex: 1; font-size: 13px; letter-spacing: 0.08em;
+    text-transform: uppercase; font-family: 'IBM Plex Mono', monospace;
+  }
+  .mob-deck-count {
+    font-size: 11px; opacity: 0.4;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .mob-deck-arrow {
+    font-size: 16px; line-height: 1;
+    transition: transform 0.25s cubic-bezier(.56,.86,.59,1);
+    display: inline-block;
+  }
+  .mob-deck-section.open .mob-deck-arrow { transform: rotate(90deg); }
+
+  .mob-card-grid {
+    display: none;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px; padding-bottom: 20px;
+  }
+  .mob-deck-section.open .mob-card-grid { display: grid; }
+
+  .mob-card {
+    border: 1.5px dashed #111; border-radius: 5px;
+    background: #fff; padding: 8px 6px;
+    display: flex; flex-direction: column;
+    cursor: pointer; transition: box-shadow 0.15s;
+  }
+  .mob-card:active { box-shadow: 0 6px 18px rgba(0,0,0,0.15); }
+  .mob-card-tag {
+    font-size: 5.5px; letter-spacing: 0.1em; text-transform: uppercase;
+    opacity: 0.4; line-height: 1.4; margin-bottom: auto;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .mob-card-name {
+    font-size: 8px; font-weight: 600; line-height: 1.3; color: #111;
+    font-family: 'IBM Plex Mono', monospace; margin-top: 6px;
   }
 
+  /* ── RESPONSIVE ── */
+  @media (max-width: 700px) {
+    /* prevent slab from causing horizontal scroll */
+    #section-menu { overflow: hidden; }
+    .slab { left: -24px; right: -24px; }
+    .row.go-left:hover  .slab { transform: translateX(-120px); }
+    .row.go-right:hover .slab { transform: translateX(120px); }
+    /* keep labels inside the diamond on mobile */
+    .label { font-size: 13px; bottom: auto; top: 42%; }
+    .row.go-left  .label { left: 30%; }
+    .row.go-right .label { right: 30%; }
+
+    /* inner pages */
+    .inner-page { padding: 70px 24px 80px; }
+    .back-btn { left: 24px; top: 24px; }
+    .page-title { margin-bottom: 32px; }
+
+    /* card gallery in rules */
+    .card-gallery { grid-template-columns: repeat(2, 1fr); }
+
+    /* variants grid */
+    .variants-grid { grid-template-columns: 1fr; }
+
+    /* shuffle */
+    .rand-layout { grid-template-columns: 1fr; }
+
+    /* card overlay */
+    .card-overlay { padding: 20px 16px; }
+    .card-overlay-inner { flex-direction: column; align-items: center; gap: 24px; }
+    .card-face-large { width: 120px; min-width: 120px; }
+    .card-info-panel { max-height: none; }
+
+    /* download page: hide desktop scatter, show mobile browser */
+    #page-another {
+      height: auto; min-height: 100dvh;
+      overflow-y: auto; padding: 0 24px;
+    }
+    #piles-bar { display: none; }
+    #cards-download { display: none; }
+    #mobile-deck-browser { display: block; }
+    .cards-back { position: fixed; top: 24px; left: 24px; }
+  }
+
+  @media (max-width: 480px) {
+    /* landing */
+    #section-text { padding: 40px 24px; }
+    #landing-hint { left: 24px; }
+
+    /* menu rows slightly smaller */
+    .row { height: 120px; margin-top: -28px; }
+
+    /* 2-col card grid on very small screens */
+    .mob-card-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ── SCAN ── */
+  .scan-viewfinder {
+    position: relative; width: 100%; max-width: 480px;
+    aspect-ratio: 4/3; border: 1.5px dashed #111;
+    background: #f4f4f4; overflow: hidden; margin-bottom: 20px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  /* MindAR injects video (z-index:-2) + canvas — override so they fill and show */
+  .scan-viewfinder video {
+    position: absolute; inset: 0;
+    width: 100% !important; height: 100% !important;
+    object-fit: cover;
+    z-index: 1 !important;   /* MindAR sets -2; we need it above the background */
+  }
+  .scan-viewfinder canvas {
+    position: absolute; inset: 0;
+    width: 100% !important; height: 100% !important;
+    z-index: 2;              /* AR overlay above video */
+  }
+
+  /* corner markers */
+  .scan-corner {
+    position: absolute; width: 18px; height: 18px;
+    border-color: #111; border-style: solid; border-width: 0;
+    z-index: 10;
+  }
+  .scan-corner.tl { top: 10px; left: 10px;  border-top-width: 2px; border-left-width: 2px; }
+  .scan-corner.tr { top: 10px; right: 10px; border-top-width: 2px; border-right-width: 2px; }
+  .scan-corner.bl { bottom: 10px; left: 10px;  border-bottom-width: 2px; border-left-width: 2px; }
+  .scan-corner.br { bottom: 10px; right: 10px; border-bottom-width: 2px; border-right-width: 2px; }
+
+  /* scanning line animation */
+  .scan-line {
+    position: absolute; left: 12px; right: 12px; height: 1.5px;
+    background: #111; opacity: 0; top: 50%;
+    animation: none; z-index: 10;
+  }
+  .scan-viewfinder.scanning .scan-line {
+    opacity: 0.35;
+    animation: scanSwipe 1.8s ease-in-out infinite;
+  }
+  @keyframes scanSwipe {
+    0%   { top: 12%; }
+    50%  { top: 85%; }
+    100% { top: 12%; }
+  }
+
+  .scan-status {
+    font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: #999; position: absolute; z-index: 10; text-align: center;
+    bottom: 12px; left: 0; right: 0; padding: 4px 8px;
+    background: rgba(255,255,255,0.75); backdrop-filter: blur(4px);
+    border-radius: 2px; margin: 0 12px;
+  }
+  .scan-viewfinder.scanning .scan-status { display: none; }
+
+  .scan-btn {
+    background: transparent; color: #111; border: 1.5px dashed #111;
+    font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 11px 24px; cursor: pointer; transition: opacity 0.2s;
+    font-family: 'IBM Plex Mono', monospace; display: inline-block;
+    margin-bottom: 32px;
+  }
+  .scan-btn:hover { opacity: 0.6; }
+
+  .scan-manual-label {
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    opacity: 0.4; margin-bottom: 10px;
+  }
+  .scan-search {
+    width: 100%; max-width: 480px;
+    background: transparent; border: 1.5px dashed #ccc;
+    font-family: 'IBM Plex Mono', monospace; font-size: 14px;
+    padding: 10px 14px; color: #111; outline: none;
+    transition: border-color 0.15s; margin-bottom: 10px; display: block;
+  }
+  .scan-search:focus { border-color: #111; }
+  .scan-search::placeholder { color: #bbb; }
+
+  .scan-suggestions { display: flex; flex-direction: column; gap: 4px; max-width: 480px; margin-bottom: 32px; }
+  .scan-suggestion {
+    border: 1.5px dashed #e0e0e0; padding: 8px 14px;
+    font-size: 12px; cursor: pointer; display: flex;
+    align-items: center; gap: 10px; transition: border-color 0.15s;
+  }
+  .scan-suggestion:hover { border-color: #111; }
+  .scan-sug-deck { font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.45; white-space: nowrap; }
+
+  /* result panel */
+  .scan-result-panel {
+    border-top: 1.5px dashed #e0e0e0; padding-top: 28px;
+    margin-top: 4px; display: none;
+  }
+  .scan-result-panel.visible { display: block; }
+  .scan-result-layout { display: flex; gap: 28px; align-items: flex-start; }
+  .scan-result-card {
+    width: 90px; min-width: 90px;
+    border: 1.5px dashed #111; border-radius: 5px;
+    padding: 8px 6px; display: flex; flex-direction: column;
+  }
+  .scan-result-card-tag  { font-size: 6px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.4; line-height: 1.4; margin-bottom: auto; font-family: 'IBM Plex Mono', monospace; }
+  .scan-result-card-name { font-size: 9px; font-weight: 600; line-height: 1.3; color: #111; font-family: 'IBM Plex Mono', monospace; }
+  .scan-result-info { flex: 1; }
+  .scan-result-name { font-size: clamp(18px, 2.5vw, 26px); font-weight: 400; line-height: 1.1; margin-bottom: 4px; }
+  .scan-result-meta { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.45; margin-bottom: 16px; }
+  .scan-result-desc { font-size: clamp(14px, 1.3vw, 16px); line-height: 1.8; color: #111; margin-bottom: 14px; }
+  .scan-result-ex-label { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.4; margin-bottom: 6px; }
+  .scan-result-ex { font-size: 13px; line-height: 1.65; color: #555; font-style: italic; margin-bottom: 16px; }
+  .scan-result-archive-link {
+    display: inline-block; font-size: 11px; letter-spacing: 0.08em;
+    text-transform: uppercase; color: #111; text-decoration: none;
+    border-bottom: 1px solid #111; padding-bottom: 1px;
+    opacity: 0.6; transition: opacity 0.15s;
+  }
+  .scan-result-archive-link:hover { opacity: 1; }
+  .scan-found-badge {
+    font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase;
+    opacity: 0.5; margin-bottom: 20px; display: flex; align-items: center; gap: 6px;
+  }
+  .scan-found-dot { width: 6px; height: 6px; border-radius: 50%; background: #111; display: inline-block; }
   @media (max-width: 520px) {
-    .inner-page { padding: 32px 20px 80px; }
-    #section-text { padding: 48px 28px; }
-    #landing-hint { left: 28px; }
+    .scan-result-layout { flex-direction: column; }
   }
 </style>
 </head>
@@ -392,24 +669,29 @@
 <section id="section-menu" class="loop-menu">
   <div class="stack" id="menu-template">
     <a class="row go-right" data-page="about" href="#">
-      <div class="slab"><img src="forma.png" alt=""></div>
-      <span class="label">ABOUT</span>
+      <div class="slab"><img src="forma.png" alt="">
+        <span class="label">ABOUT</span>
+      </div>
     </a>
     <a class="row go-left" data-page="rules" href="#">
-      <div class="slab"><img src="forma.png" alt=""></div>
-      <span class="label">RULES</span>
+      <div class="slab"><img src="forma.png" alt="">      
+        <span class="label">RULES</span>
+      </div>
     </a>
     <a class="row go-right" data-page="random" href="#">
-      <div class="slab"><img src="forma.png" alt=""></div>
-      <span class="label">SHUFFLE</span>
+      <div class="slab"><img src="forma.png" alt="">
+        <span class="label">SHUFFLE</span>
+      </div>
     </a>
     <a class="row go-left" data-page="scan" href="#">
-      <div class="slab"><img src="forma.png" alt=""></div>
-      <span class="label">SCAN</span>
+      <div class="slab"><img src="forma.png" alt="">
+        <span class="label">SCAN</span>
+      </div>
     </a>
     <a class="row go-right" data-page="another" href="#">
-      <div class="slab"><img src="forma.png" alt=""></div>
-      <span class="label">DOWNLOAD</span>
+      <div class="slab"><img src="forma.png" alt="">
+        <span class="label">DOWNLOAD</span>
+      </div>
     </a>
   </div>
 </section>
@@ -438,23 +720,66 @@
   <div class="inner-wrap">
     <button class="back-btn" onclick="showHome()">← Back</button>
     <h1 class="page-title">Rules</h1>
+
     <div class="body-text">
-      <p>The game is played in <mark class="hl hl-blue">three modes</mark>. Each one proposes a different relationship between players, cards and the act of designing. There is no single correct way to play — only different degrees of complexity and intention.</p>
-      <p>Before each session, shuffle the <mark class="hl hl-purple">Friction Patterns Deck</mark> and place it face down at the centre of the table. The <mark class="hl hl-orange">Platform</mark> and <mark class="hl hl-coral">Ethical Challenge</mark> decks are kept separate. The Flow cards and Connectors form the building material of the system.</p>
+      <p><mark class="hl hl-purple">The Decks</mark></p>
+      <p>Break the Loop is played with five types of cards. Each deck has a distinct function — together, they form the system.</p>
+      <p><mark class="hl hl-purple">Friction Patterns Deck</mark> — The core of the game. Each card corresponds to a pattern from the Friction Design Archive: a named, documented design strategy that introduces intentional friction into a digital interface.</p>
+      <p><mark class="hl hl-orange">Platform Deck</mark> — Each card places the game in a concrete digital context: a social media feed, a streaming service, an e-commerce checkout, and others. Platform cards anchor abstract design decisions to recognisable ecosystems.</p>
+      <p><mark class="hl hl-coral">Challenge Deck</mark> — Fifteen open questions that frame a design problem in ethical terms. These cards do not have correct answers. They are prompts for argument — each one requires players to take a position on user autonomy, attention, consent, or manipulation.</p>
+      <p><mark class="hl hl-blue">Flow Deck</mark> — Cards representing individual screen types or elements of a wireframe: onboarding screens, home feeds, settings pages, notifications, and more. Flow cards are the building material of user journeys and a diagnostic tool in Mode 3 — use them to map a real product and pinpoint exactly where an ethical tension lives before drawing a Challenge card.</p>
+      <p><mark class="hl hl-green">Connectors</mark> — Small cards that establish the relationships between screens. Connectors define how a user moves through the journey built with Flow cards.</p>
     </div>
+
     <div class="card-gallery">
-      <div class="gallery-card"><div class="gallery-card-face"><span class="gallery-card-tag">Friction<br>Patterns</span></div><div class="gallery-card-info"><div class="gallery-card-name">Friction Patterns</div><div class="gallery-card-desc">Design strategies that introduce intentional obstacles, prompting reflection and conscious choice.</div></div></div>
-      <div class="gallery-card"><div class="gallery-card-face"><span class="gallery-card-tag">Platform</span></div><div class="gallery-card-info"><div class="gallery-card-name">Platform</div><div class="gallery-card-desc">Sets the digital context for the round — social media, e-commerce, streaming, banking, and more.</div></div></div>
-      <div class="gallery-card"><div class="gallery-card-face"><span class="gallery-card-tag">Ethical<br>Challenge</span></div><div class="gallery-card-info"><div class="gallery-card-name">Ethical Challenge</div><div class="gallery-card-desc">Poses the moral question the round must address — autonomy, consent, attention, manipulation.</div></div></div>
-      <div class="gallery-card"><div class="gallery-card-face"><span class="gallery-card-tag">Flow &amp;<br>Connectors</span></div><div class="gallery-card-info"><div class="gallery-card-name">Flow &amp; Connectors</div><div class="gallery-card-desc">Building blocks for mapping user journeys — screens, actions and the paths between them.</div></div></div>
+      <div class="gallery-card"><div class="gallery-card-face"><img src="cards/friction-patterns.png" onerror="this.style.display='none'" alt=""><span class="gallery-card-tag">Friction<br>Patterns</span></div><div class="gallery-card-info"><div class="gallery-card-name">Friction Patterns</div><div class="gallery-card-desc">Design strategies that introduce intentional obstacles, prompting reflection and conscious choice.</div></div></div>
+      <div class="gallery-card"><div class="gallery-card-face"><img src="cards/platform.png" onerror="this.style.display='none'" alt=""><span class="gallery-card-tag">Platform</span></div><div class="gallery-card-info"><div class="gallery-card-name">Platform</div><div class="gallery-card-desc">Sets the digital context for the round — social media, e-commerce, streaming, banking, and more.</div></div></div>
+      <div class="gallery-card"><div class="gallery-card-face"><img src="cards/ethical-challenge.png" onerror="this.style.display='none'" alt=""><span class="gallery-card-tag">Ethical<br>Challenge</span></div><div class="gallery-card-info"><div class="gallery-card-name">Ethical Challenge</div><div class="gallery-card-desc">Poses the moral question the round must address — autonomy, consent, attention, manipulation.</div></div></div>
+      <div class="gallery-card"><div class="gallery-card-face"><img src="cards/flow-connectors.png" onerror="this.style.display='none'" alt=""><span class="gallery-card-tag">Flow &amp;<br>Connectors</span></div><div class="gallery-card-info"><div class="gallery-card-name">Flow &amp; Connectors</div><div class="gallery-card-desc">Building blocks for mapping user journeys — screens, actions and the paths between them.</div></div></div>
     </div>
+
     <div class="body-text">
-      <p><mark class="hl hl-green">Mode 1 — Archive.</mark> Individual or group exploration. No competitive structure, no problem-solving objectives. Pick a card from the Friction Patterns Deck, point the camera at it, and unlock the digital archive entry.</p>
-      <p>Archive mode has no winner. It ends when the group decides it ends. It is a <mark class="hl hl-green">vocabulary-building exercise</mark>, a slow reading of the designed world around us.</p>
-      <p><mark class="hl hl-blue">Mode 2 — Challenge.</mark> One player draws a Platform card and an Ethical Challenge card. Each other player receives three Pattern cards and secretly chooses the one they believe responds most appropriately. Cards are revealed simultaneously. Each player has one minute to defend their proposal.</p>
-      <p>Challenge mode rewards <mark class="hl hl-coral">argumentation, not correctness</mark>. There is rarely a single right answer.</p>
-      <p><mark class="hl hl-orange">Mode 3 — System.</mark> One player takes the role of Designer; another becomes the <mark class="hl hl-coral">Friction Agent</mark>. The Designer builds a logical user journey using Flow and Connector cards. The Friction Agent intervenes: placing Pattern cards at connection points, introducing intentional obstacles.</p>
-      <p>The result is a physical diagram — a visible record of the <mark class="hl hl-purple">negotiation between usability and ethical intervention</mark>. It is never finished.</p>
+      <p><mark class="hl hl-blue">How to Play</mark></p>
+      <p>Break the Loop is played in <mark class="hl hl-blue">three modes</mark>. Each proposes a different relationship between players, cards, and the act of designing. There is no single correct way to play — only different degrees of complexity and intention.</p>
+      <p>Before each session, shuffle the <mark class="hl hl-purple">Friction Patterns Deck</mark> and place it face down at the centre of the table. The <mark class="hl hl-orange">Platform</mark>, <mark class="hl hl-blue">Flow cards &amp; Connectors</mark> and <mark class="hl hl-coral">Ethical Challenge</mark> decks are kept separate.</p>
+
+      <p><mark class="hl hl-green">Mode 1 — Archive</mark></p>
+      <p>Individual or group · No time limit · No competitive structure</p>
+      <p>Pick a card from the Friction Patterns Deck. Read it. Then point your camera at it using the "Scan" function on the website to unlock its full entry in the digital archive — definition, taxonomy, and real-world examples.</p>
+      <p>There are no goals here and no wrong moves. The purpose of this mode is familiarisation: building a shared vocabulary before playing the other modes. Archive mode ends when you decide it ends. It works well at the start of a session, or as a standalone exercise when time is limited.</p>
+      <p>Suggestion: after scanning a card, try to name a digital product you use regularly that applies, or should apply, that pattern.</p>
+
+      <p><mark class="hl hl-blue">Mode 2 — Challenge</mark></p>
+      <p>Argumentation-based</p>
+      <p>Challenge mode is about <mark class="hl hl-coral">defending positions, not finding correct answers</mark>. A Platform card sets the context. An Ethical Challenge card frames the problem. Pattern cards are the proposed solutions. What matters is the quality of the reasoning, not consensus.</p>
+      <p>The following variants share this structure but shift who decides, who judges, and what counts as a good argument.</p>
+      <div class="variants-grid">
+        <div class="variant-card">
+          <strong>Variant A — Blind Draw</strong>
+          <p>One player draws a Platform card and reads it aloud. A second player draws an Ethical Challenge card and reads it aloud. Each other player is dealt three Pattern cards and selects the one they believe responds most appropriately to the challenge. All cards are revealed simultaneously. Each player has one minute to defend their choice. After all defences, the group votes on the most convincing argument. The player with the most votes draws the next Platform card and the role rotates.</p>
+        </div>
+        <div class="variant-card">
+          <strong>Variant B — Open Hand</strong>
+          <p>One player draws a Platform card and an Ethical Challenge card and reads both aloud. The full Friction Patterns Deck is placed face up at the centre of the table. Players have two minutes to browse and each selects one pattern card they would apply. Cards are revealed simultaneously and each player defends their choice. This variant rewards familiarity with the archive and works best after players have completed Archive mode.</p>
+        </div>
+        <div class="variant-card">
+          <strong>Variant C — Devil's Advocate</strong>
+          <p>One player draws a Platform card and an Ethical Challenge card. One player is randomly assigned the role of Devil's Advocate — their task is to argue against the use of any friction pattern, defending the platform's perspective. All other players select a Pattern card and defend it. The group then votes: did the Devil's Advocate make a convincing case?</p>
+        </div>
+        <div class="variant-card">
+          <strong>Variant D — Swap</strong>
+          <p>One player draws one card from each deck: a Platform card, a Pattern card, and an Ethical Challenge card. They read all three aloud. They then choose any two cards to keep and discard the third — replacing it with a free choice of their own invention that they feel is more relevant, more provocative, or more honest. They present their final combination to the group and defend why they made the swap. The swap itself is part of the argument.</p>
+        </div>
+      </div>
+      <p>In all variants: <mark class="hl hl-coral">challenge mode rewards argumentation and theorising, not correctness</mark>. There is rarely a single right answer.</p>
+
+      <p><mark class="hl hl-orange">Mode 3 — System</mark></p>
+      <p>Cooperative or Versus</p>
+      <p>Mode 3 is a simulation. Players use <mark class="hl hl-blue">Flow cards</mark> and <mark class="hl hl-green">Connectors</mark> to build a user journey — a sequence of screens that represents a real or hypothetical digital product. Friction Pattern cards are then introduced into that journey as deliberate interventions. The goal is not to win but to produce a system that can be discussed, questioned, and defended.</p>
+      <p><strong>Diagnostic Mode</strong> One player — or the whole group — brings a real project or product they are currently working on. Instead of building a hypothetical journey, players use Flow cards to map the existing interface as accurately as possible, laying out the screens and connecting them with Connectors. Once the journey is on the table, the group draws an Ethical Challenge card and uses it as a lens: where in this flow does the tension the card describes actually live? Pattern cards are then drawn and placed not as hypothetical interventions but as proposed fixes to a real problem. A canvas is available to document both the diagnosis and the proposed intervention.</p>
+      <p>This mode works best in academic contexts where participants have a project in development, or in professional settings where a team wants to analyse an existing product.</p>
+      <p><strong>Cooperative Mode</strong> Players collectively choose a Platform card to define the context. Together, they use Flow cards and Connectors to build a user journey, laying cards sequentially on the table to represent the screens a user moves through. Once the journey is complete, the group draws Pattern cards and must reach consensus on where — and whether — to introduce each one into the flow. A canvas is available to document the rationale for each decision.</p>
+      <p><strong>Versus Mode</strong> One player takes the role of <mark class="hl hl-blue">Designer</mark>. Another becomes the <mark class="hl hl-coral">Friction Agent</mark>. A Platform card is drawn to set the context. The Designer builds a user journey using Flow cards and Connectors, aiming for a coherent and functional flow. Once the journey is laid out, the Friction Agent intervenes: drawing Pattern cards and placing them at connection points in the flow, introducing intentional obstacles. The Designer must then respond — accepting the intervention, relocating it, or arguing against it. A third player may take the role of <mark class="hl hl-purple">Moderator</mark>, keeping time and framing the debate with an Ethical Challenge card drawn at the start.</p>
     </div>
   </div>
 </div>
@@ -464,7 +789,7 @@
   <div class="inner-wrap">
     <button class="back-btn" onclick="showHome()">← Back</button>
     <h1 class="page-title">Shuffle</h1>
-    <div class="randomizer-wrap">
+    <div class="rand-layout">
       <div class="rand-card-scene">
         <div class="rand-card-flipper" id="rand-card-flipper">
           <div class="rand-card-placeholder">
@@ -474,10 +799,11 @@
         </div>
       </div>
       <div class="rand-info">
-        <div class="rand-row"><span class="rand-label">Platform</span><span class="rand-value" id="rand-platform">—</span></div>
-        <div class="rand-row"><span class="rand-label">Challenge</span><span class="rand-value" id="rand-challenge">—</span></div>
-        <div class="rand-row"><span class="rand-label">Pattern</span><span class="rand-value" id="rand-pattern">—</span></div>
-        <div class="rand-prompt" id="rand-prompt"></div>
+        <div class="rand-sentence" id="rand-sentence">Press shuffle to draw a combination.</div>
+        <div>
+          <div class="rand-alts-label">Other patterns to consider</div>
+          <div class="rand-alts" id="rand-alts"></div>
+        </div>
         <button class="rand-btn" id="rand-btn">Shuffle ↻</button>
       </div>
     </div>
@@ -489,27 +815,55 @@
   <div class="inner-wrap">
     <button class="back-btn" onclick="showHome()">← Back</button>
     <h1 class="page-title">Scan</h1>
-    <div class="scan-wrap">
-      <p>Point the camera at any card from the deck to access its digital archive entry — full pattern definition, taxonomy and application examples.</p>
-      <div class="scanner-box">
-        <video id="video" playsinline autoplay></video>
-        <p class="scanner-label" id="scanner-label">camera inactive</p>
-      </div>
-      <button class="scan-btn" id="scan-btn">Activate camera</button>
-      <div class="scan-result" id="scan-result">
-        <span class="pattern-name">Confront the User</span>
-        Interrupts the automatic flow to present the user with the consequences of their actions — restoring their capacity to decide consciously.
-        <p style="font-size:11px;color:#666;margin-top:1em;letter-spacing:0.04em;">Category: Feedback & Awareness · Level: Interruptive · Deck: Friction Patterns</p>
+    <div class="body-text">
+      <p>Point the camera at any card from the deck to access its full archive entry — pattern definition, category and application examples. Or search manually by card name below.</p>
+    </div>
+
+    <div class="scan-viewfinder" id="scan-viewfinder">
+      <!-- MindAR injects its video + canvas here automatically -->
+      <div class="scan-corner tl"></div>
+      <div class="scan-corner tr"></div>
+      <div class="scan-corner bl"></div>
+      <div class="scan-corner br"></div>
+      <div class="scan-line" id="scan-line"></div>
+      <span class="scan-status" id="scan-status">camera inactive</span>
+    </div>
+
+    <button class="scan-btn" id="scan-btn">Activate camera</button>
+
+    <div class="scan-manual-label">Search manually</div>
+    <input class="scan-search" id="scan-search" type="text" placeholder="type a card name…" autocomplete="off" spellcheck="false">
+    <div class="scan-suggestions" id="scan-suggestions"></div>
+
+    <div class="scan-result-panel" id="scan-result-panel">
+      <div class="scan-found-badge"><span class="scan-found-dot"></span><span id="scan-found-source">card identified</span></div>
+      <div class="scan-result-layout">
+        <div class="scan-result-card" id="scan-result-card">
+          <span class="scan-result-card-tag" id="scan-result-card-tag"></span>
+          <span class="scan-result-card-name" id="scan-result-card-cname"></span>
+        </div>
+        <div class="scan-result-info">
+          <div class="scan-result-name" id="scan-result-name"></div>
+          <div class="scan-result-meta" id="scan-result-meta"></div>
+          <div class="scan-result-desc" id="scan-result-desc"></div>
+          <div class="scan-result-ex-label" id="scan-result-ex-label" style="display:none">Example</div>
+          <div class="scan-result-ex"   id="scan-result-ex"></div>
+          <a id="scan-result-archive-link" class="scan-result-archive-link" href="#" target="_blank" rel="noopener" style="display:none">View full entry in Friction Design Archive ↗</a>
+        </div>
       </div>
     </div>
+
   </div>
 </div>
 
 <!-- ANOTHER / DECK TABLE -->
 <div id="page-another">
   <button class="cards-back" onclick="showHome()">← Back</button>
+  <!-- desktop: scatter layout -->
   <div id="piles-bar"></div>
   <a id="cards-download" href="cards.pdf" download>Download the deck (PDF)</a>
+  <!-- mobile: accordion gallery -->
+  <div id="mobile-deck-browser"></div>
   <div class="card-overlay" id="card-overlay">
     <button class="card-overlay-close" id="card-overlay-close">×</button>
     <div class="card-overlay-inner" id="card-overlay-inner"></div>
@@ -526,22 +880,23 @@
   const sectionText = document.getElementById('section-text');
   const sectionMenu = document.getElementById('section-menu');
   const pages       = document.querySelectorAll('.inner-page, #page-another');
+  let first       = true; 
 
   /* ── NAVIGATION ── */
   function showHome() {
     document.body.classList.remove('page-open');
     pages.forEach(p => p.classList.remove('active'));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({top: window.innerHeight, behavior: 'instant'});   
   }
 
   function showPage(id) {
+    window.scrollTo({ top: 0, behavior: 'instant' });
     document.body.classList.add('page-open');
     pages.forEach(p => p.classList.remove('active'));
     clearPhysics();
     const pageEl = document.getElementById('page-' + id);
     if (!pageEl) return;
     pageEl.classList.add('active');
-    window.scrollTo(0, 0);
     if (id === 'another') {
       setTimeout(initDeckBrowser, 80);
     } else {
@@ -694,12 +1049,17 @@
 
   function buildLandChars(text) {
     landingPara.innerHTML = '';
-    text.split('').forEach(ch => {
-      if (ch === ' ') { landingPara.appendChild(document.createTextNode(' ')); return; }
-      const s = document.createElement('span');
-      s.className   = 'char';
-      s.textContent = ch;
-      landingPara.appendChild(s);
+    text.split(' ').forEach((word, wi, arr) => {
+      const wordWrap = document.createElement('span');
+      wordWrap.style.whiteSpace = 'nowrap';
+      word.split('').forEach(ch => {
+        const s = document.createElement('span');
+        s.className   = 'char';
+        s.textContent = ch;
+        wordWrap.appendChild(s);
+      });
+      landingPara.appendChild(wordWrap);
+      if (wi < arr.length - 1) landingPara.appendChild(document.createTextNode(' '));
     });
     return [...landingPara.querySelectorAll('.char')];
   }
@@ -845,165 +1205,331 @@
   }
 
   /* ── RANDOMIZER ── */
-  const platforms  = ['Instagram','TikTok','Spotify','YouTube','Twitter / X','LinkedIn','Netflix','Duolingo','WhatsApp','Amazon','Google Search','Reddit'];
-  const challenges = ['Reduce time spent on the platform','Encourage more intentional sharing','Prevent compulsive purchasing','Support healthier sleep habits','Limit filter bubble formation','Promote critical reading of information','Reduce notification overload','Encourage offline activity','Prevent doomscrolling','Support data privacy awareness'];
+  const platforms  = ['Dating App','Video & Audio Streaming','Travel and Navigation','E-Commerce & Online Stores','Finance & Mobile Banking','Education','Gaming','Health & Fitness','On-Demand Subscription Services','Utilities & System Tools'];
+  const challenges = ['How can we ensure the user always knows where they are in the system?','How can we reduce the number of decisions a user must make at once?','How can we make the most important action the most visible one?','How can we encourage skepticism toward digital content?','How can we prevent users from ignoring critical information?','How can we make it obvious what is clickable and what is not?','How can we slow down the pace of information consumption?','How can we help users avoid mistakes?','How can we increase the perceived risk or importance of an action?','How can we slow down impulsive decision-making?','How can we confirm that the user understood what just happened?','How can we create space for second thoughts?','How can we encourage users to question what they are told?','How can we make users aware of what they are accepting?','How can we make users aware of what they cannot undo?'];
   const patterns   = ['Betrayal','Blatant Lie','Checkpoint Starvation','Confront the User','Crash & Burn','Double Twist','Elimination of the Safetynet','Faux Finale','Forced Downtime','Induce Pauses','Limited Zones','Mimic','Misleading Standards','Offer Multiple Points of View','Remind of the Consequences','Request Additional Confirmations'];
-  const prompts    = [
-    (pl,ch,pa) => `How would you apply a <strong>${pa}</strong> to ${pl} in order to ${ch.toLowerCase()}?`,
-    (pl,ch,pa) => `Design a <strong>${pa}</strong> pattern for ${pl}. Your constraint: ${ch.toLowerCase()}.`,
-    (pl,ch,pa) => `You are the Friction Agent on ${pl}. Use <strong>${pa}</strong> to ${ch.toLowerCase()}.`,
-    (pl,ch,pa) => `Imagine ${pl} implemented <strong>${pa}</strong>. Would it ${ch.toLowerCase()}? Argue your case.`,
-  ];
-  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+  const pick     = arr => arr[Math.floor(Math.random() * arr.length)];
+  const pickN    = (arr, n, exclude) => arr.filter(x => x !== exclude).sort(() => Math.random()-0.5).slice(0, n);
 
-  const flipper  = document.getElementById('rand-card-flipper');
-  const nameEl   = document.getElementById('rand-card-name');
-  const pEl      = document.getElementById('rand-platform');
-  const cEl      = document.getElementById('rand-challenge');
-  const paEl     = document.getElementById('rand-pattern');
-  const promptEl = document.getElementById('rand-prompt');
-  const btn      = document.getElementById('rand-btn');
+  const flipper    = document.getElementById('rand-card-flipper');
+  const nameEl     = document.getElementById('rand-card-name');
+  const sentenceEl = document.getElementById('rand-sentence');
+  const altsEl     = document.getElementById('rand-alts');
+  const btn        = document.getElementById('rand-btn');
+
+  const sentences = [
+    (pl,ch,pa) => `Apply<br><span class="rand-chip rand-chip-pattern">${pa}</span><br>on <span class="rand-chip rand-chip-platform">${pl}</span><br>to <span class="rand-chip rand-chip-challenge">${ch.toLowerCase()}</span>.`,
+    (pl,ch,pa) => `You are the Friction Agent on<br><span class="rand-chip rand-chip-platform">${pl}</span><br>Use <span class="rand-chip rand-chip-pattern">${pa}</span><br>to <span class="rand-chip rand-chip-challenge">${ch.toLowerCase()}</span>.`,
+    (pl,ch,pa) => `Design a<br><span class="rand-chip rand-chip-pattern">${pa}</span><br>for <span class="rand-chip rand-chip-platform">${pl}</span><br>Constraint: <span class="rand-chip rand-chip-challenge">${ch.toLowerCase()}</span>.`,
+    (pl,ch,pa) => `How would<br><span class="rand-chip rand-chip-pattern">${pa}</span><br>help <span class="rand-chip rand-chip-platform">${pl}</span> users<br><span class="rand-chip rand-chip-challenge">${ch.toLowerCase()}</span>?`,
+  ];
 
   let shuffling = false;
   function doShuffle() {
     if (shuffling) return;
     shuffling = true;
-    [pEl, cEl, paEl, promptEl].forEach(el => el.classList.add('fade'));
+    sentenceEl.classList.add('fade');
+    altsEl.classList.add('fade');
 
-    // Phase 1: rotate to edge
     flipper.style.transition = 'transform 0.18s ease-in';
     flipper.style.transform  = 'rotateY(85deg)';
 
     setTimeout(() => {
       const pl = pick(platforms), ch = pick(challenges), pa = pick(patterns);
-      nameEl.textContent = pa; pEl.textContent = pl; cEl.textContent = ch; paEl.textContent = pa;
-      promptEl.innerHTML = pick(prompts)(pl, ch, pa);
+      nameEl.textContent = pa;
 
-      // Phase 2: snap to other side, rotate back into view
+      // New sentence
+      sentenceEl.innerHTML = pick(sentences)(pl, ch, pa);
+
+      // Alt pattern chips (3 others)
+      const alts = pickN(patterns, 3, pa);
+      altsEl.innerHTML = alts.map(a =>
+        `<span class="rand-alt-chip"><span class="rand-alt-dot"></span>${a}</span>`
+      ).join('');
+
       flipper.style.transition = 'none';
       flipper.style.transform  = 'rotateY(-85deg)';
-      flipper.offsetWidth;      // force reflow so transition fires cleanly
+      flipper.offsetWidth;
       flipper.style.transition = 'transform 0.18s ease-out';
       flipper.style.transform  = 'rotateY(0deg)';
-      [pEl, cEl, paEl, promptEl].forEach(el => el.classList.remove('fade'));
+      sentenceEl.classList.remove('fade');
+      altsEl.classList.remove('fade');
       setTimeout(() => { shuffling = false; }, 200);
     }, 190);
   }
   if (btn) btn.addEventListener('click', doShuffle);
 
   /* ── SCAN ── */
-  const scanBtn = document.getElementById('scan-btn');
-  const video   = document.getElementById('video');
-  const label   = document.getElementById('scanner-label');
-  const result  = document.getElementById('scan-result');
-  let streaming = false;
-
-  function stopCamera() {
-    video.srcObject?.getTracks().forEach(t => t.stop());
-    video.srcObject = null; video.classList.remove('active');
-    label.style.display = ''; scanBtn.textContent = 'Activate camera';
-    result.classList.remove('visible'); streaming = false;
+  // ─────────────────────────────────────────────────────────────
+  // SCAN_TARGETS — 9 friction pattern cards compiled into targets.mind.
+  // If the wrong card shows up when you scan, the compilation order
+  // was different — swap the entries to match.
+  // ─────────────────────────────────────────────────────────────
+  // Generates the Friction Design Archive URL for a card name
+  function archiveUrl(name) {
+    return 'https://frictiondesign.fba.up.pt/mediawiki/index.php/' +
+      name.replace(/ /g, '_').replace(/&/g, '%26');
   }
-  scanBtn?.addEventListener('click', async () => {
-    if (streaming) { stopCamera(); return; }
+
+  const SCAN_TARGETS = [
+    { deckId: 'patterns', cardIdx: 15, archiveDesc: 'Confirmation steps in the interface that slow the user down, encourage reflection, and prevent impulsive or automatic decisions.' },  // 0 → Request Additional Confirmations
+    { deckId: 'patterns', cardIdx: 4,  archiveDesc: 'Intentional, simulated technical disruptions to deceive the user into believing a critical error has occurred.' },                    // 1 → Crash & Burn
+    { deckId: 'patterns', cardIdx: 11, archiveDesc: 'A term, object, character or action that mimics a harmless or beneficial thing to deceive users, functioning instead as a trap or hostile entity.' }, // 2 → Mimic
+    { deckId: 'patterns', cardIdx: 7,  archiveDesc: 'A deception pattern that tricks the player into believing the game has concluded or that their character has died, only to reveal further gameplay or a narrative twist.' }, // 3 → Faux Finale
+    { deckId: 'patterns', cardIdx: 9,  archiveDesc: 'Slowing the user\'s interaction flow by inserting moments of forced stillness.' },                                                    // 4 → Induce Pauses
+    { deckId: 'patterns', cardIdx: 0,  archiveDesc: 'Failing to uphold a clear or unspoken agreement with players or users.' },                                                            // 5 → Betrayal
+    { deckId: 'patterns', cardIdx: 10, archiveDesc: 'Temporarily restricting the player\'s abilities, inventory, or character choice.' },                                                  // 6 → Limited Zones
+    { deckId: 'patterns', cardIdx: 2,  archiveDesc: 'Limiting players\' ability to save the game progress to increase tension and value of survival.' },                                   // 7 → Checkpoint Starvation
+    { deckId: 'patterns', cardIdx: 13, archiveDesc: 'Guiding the user toward more balanced and reflective decisions by presenting alternative perspectives.' },                             // 8 → Offer Multiple Points of View
+  ];
+
+  // Path to the compiled MindAR target file
+  const MIND_FILE = 'targets.mind';
+
+  let mindarInstance = null;
+
+  const scanViewfinder = document.getElementById('scan-viewfinder');
+  const scanStatusEl   = document.getElementById('scan-status');
+  const scanBtnEl      = document.getElementById('scan-btn');
+  const scanSearchEl   = document.getElementById('scan-search');
+  const scanSuggEl     = document.getElementById('scan-suggestions');
+  const scanResultPanel= document.getElementById('scan-result-panel');
+  const scanFoundSrc   = document.getElementById('scan-found-source');
+
+  // Search cards by partial name
+  function searchAllCards(query) {
+    const q = query.trim().toLowerCase();
+    if (!q) return [];
+    const results = [];
+    for (const deck of DECKS) {
+      for (const card of deck.cards) {
+        if (card.name.toLowerCase().includes(q)) results.push({ deck, card });
+      }
+    }
+    return results.slice(0, 7);
+  }
+
+  function showScanResult(deck, card, source, archiveDesc, archiveHref) {
+    document.getElementById('scan-result-card-tag').innerHTML    = deck.tag.replace(/\n/g,'<br>');
+    document.getElementById('scan-result-card-cname').textContent = card.name;
+    document.getElementById('scan-result-card').style.aspectRatio = `${deck.ar[0]}/${deck.ar[1]}`;
+    document.getElementById('scan-result-name').textContent      = card.name;
+    document.getElementById('scan-result-meta').textContent      = deck.label + (card.cat ? ' · ' + card.cat : '');
+    // Prefer the archive definition when available, fall back to card.desc
+    document.getElementById('scan-result-desc').textContent      = archiveDesc || card.desc || '';
+    const exLabel = document.getElementById('scan-result-ex-label');
+    const exEl    = document.getElementById('scan-result-ex');
+    if (card.ex) { exLabel.style.display = ''; exEl.textContent = card.ex; }
+    else         { exLabel.style.display = 'none'; exEl.textContent = ''; }
+    // Archive link
+    const linkEl = document.getElementById('scan-result-archive-link');
+    if (archiveHref) { linkEl.href = archiveHref; linkEl.style.display = ''; }
+    else             { linkEl.style.display = 'none'; }
+    scanFoundSrc.textContent = source || 'card identified';
+    scanResultPanel.classList.add('visible');
+    scanResultPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  async function stopScan() {
+    if (!mindarInstance) return;
+    try { await mindarInstance.stop(); } catch {}
+    try { mindarInstance.renderer.setAnimationLoop(null); } catch {}
+    mindarInstance = null;
+    scanViewfinder.classList.remove('scanning');
+    scanBtnEl.textContent    = 'Activate camera';
+    scanStatusEl.textContent = 'camera inactive';
+    scanStatusEl.style.display = '';
+  }
+
+  async function startScan() {
+    scanBtnEl.textContent    = 'Stop camera';
+    scanStatusEl.textContent = 'loading…';
+
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-      video.srcObject = stream; video.classList.add('active');
-      label.style.display = 'none'; scanBtn.textContent = 'Stop camera'; streaming = true;
-      setTimeout(() => { if (streaming) result.classList.add('visible'); }, 3000);
-    } catch { label.textContent = 'Camera not available in this context.'; }
+      // Wait for the MindAR ES module to finish loading (it loads in parallel with page)
+      if (!window.__mindarReady) {
+        await new Promise((resolve, reject) => {
+          const timeout = setTimeout(() => reject(new Error('MindAR library timed out — check connection')), 20000);
+          window.addEventListener('mindar-ready', () => { clearTimeout(timeout); resolve(); }, { once: true });
+        });
+      }
+      if (window.__mindarError) {
+        throw new Error('MindAR failed to load: ' + window.__mindarError);
+      }
+
+      scanStatusEl.textContent = 'loading targets…';
+
+      mindarInstance = new window.MINDAR.IMAGE.MindARThree({
+        container:        scanViewfinder,
+        imageTargetSrc:   MIND_FILE,
+        maxTrack:         1,
+        uiLoading:        'no',
+        uiScanning:       'no',
+        uiError:          'no',
+        filterMinCF:      0.001,
+        filterBeta:       1000,
+        warmupTolerance:  3,
+        missTolerance:    5,
+      });
+
+      const { renderer, scene, camera } = mindarInstance;
+
+      // Register an anchor per target
+      SCAN_TARGETS.forEach((t, i) => {
+        const anchor = mindarInstance.addAnchor(i);
+        anchor.onTargetFound = () => {
+          const deck = DECKS.find(d => d.id === t.deckId);
+          const card = deck?.cards[t.cardIdx];
+          if (deck && card) {
+            showScanResult(deck, card, 'image recognized', t.archiveDesc, archiveUrl(card.name));
+            scanStatusEl.style.display = 'none';
+          }
+        };
+        anchor.onTargetLost = () => {
+          scanStatusEl.style.display = '';
+          scanStatusEl.textContent = 'scanning…';
+        };
+      });
+
+      // start() must come before setAnimationLoop
+      await mindarInstance.start();
+
+      renderer.setAnimationLoop(() => renderer.render(scene, camera));
+
+      scanViewfinder.classList.add('scanning');
+      scanStatusEl.textContent = 'scanning…';
+
+    } catch (err) {
+      // Show the real error so we can diagnose it
+      const msg = err?.message || err?.name || String(err);
+      scanStatusEl.textContent = msg || 'unknown error';
+      console.error('MindAR error:', err);
+      scanBtnEl.textContent = 'Activate camera';
+      mindarInstance = null;
+    }
+  }
+
+  scanBtnEl?.addEventListener('click', () => {
+    if (mindarInstance) stopScan();
+    else startScan();
   });
 
+  // Stop when navigating away
+  document.addEventListener('click', e => {
+    if (e.target.closest('.back-btn') && mindarInstance) stopScan();
+  });
 
-  /* ── ANOTHER / DECK BROWSER ── */
+  // Manual search
+  scanSearchEl?.addEventListener('input', () => {
+    const results = searchAllCards(scanSearchEl.value);
+    if (!results.length) { scanSuggEl.innerHTML = ''; return; }
+    scanSuggEl.innerHTML = results.map((r, i) =>
+      `<div class="scan-suggestion" data-idx="${i}">
+        <span class="scan-sug-deck">${r.deck.label}</span>
+        <span>${r.card.name}</span>
+      </div>`
+    ).join('');
+    scanSuggEl._results = results;
+  });
+
+  scanSuggEl?.addEventListener('click', e => {
+    const sug = e.target.closest('.scan-suggestion');
+    if (!sug) return;
+    const { deck, card } = scanSuggEl._results[parseInt(sug.dataset.idx, 10)];
+    scanSearchEl.value = card.name;
+    scanSuggEl.innerHTML = '';
+    showScanResult(deck, card, 'searched manually');
+  });
+
+  /* ── DECK BROWSER ── */
   const DECKS = [
     {
-      id: 'patterns', label: 'Friction Patterns', tag: 'Friction\nPatterns',
+      id: 'patterns', label: 'Friction Patterns', tag: 'Friction\nPatterns', ar: [1204, 1994],
       cards: [
-        { name: 'Betrayal',                      cat: 'Consequence',  desc: 'The system reveals the consequences of past user behaviour at an unexpected moment, creating discomfort that prompts reflection on accumulated actions.', ex: 'Before starting a new session, the platform shows exactly how much time the user spent the previous week.' },
-        { name: 'Blatant Lie',                   cat: 'Transparency', desc: 'A deliberate falsehood in the interface that forces the user to question what they are seeing and reconsider their trust in the system.', ex: 'A progress bar that falsely claims a task is "almost done" to keep users engaged longer than necessary.' },
-        { name: 'Checkpoint Starvation',         cat: 'Consequence',  desc: 'Removes or delays the ability to save progress, creating a sense of real consequence and investment in the interaction.', ex: 'A writing tool that requires reaching a minimum word count before enabling the save function.' },
-        { name: 'Confront the User',             cat: 'Interruption', desc: 'Interrupts the automatic flow to present the user with the direct consequences of their actions, restoring their capacity to decide consciously.', ex: 'Before confirming a purchase, the interface shows the full cost including all future subscription fees.' },
-        { name: 'Crash & Burn',                  cat: 'Consequence',  desc: 'Deliberately terminates the current session or resets state to restore agency and create a clear boundary around the interaction.', ex: 'A social media feed that stops loading after 30 minutes and requires a deliberate restart to continue.' },
-        { name: 'Double Twist',                  cat: 'Reflection',   desc: 'Subverts the user\'s expectations twice in sequence — creating surprise and a moment of genuine reflection on assumptions.', ex: 'An interface that confirms an action and then immediately reveals an unexpected implication of that action.' },
-        { name: 'Elimination of the Safetynet', cat: 'Consequence',  desc: 'Removes undo, restore, or cancel options to make actions feel genuinely consequential and encourage more deliberate decision-making.', ex: 'A message that cannot be unsent, with a clear and prominent warning shown before sending.' },
-        { name: 'Faux Finale',                   cat: 'Reflection',   desc: 'Creates a false sense of completion before revealing more depth or content, challenging the assumption that the user has fully engaged.', ex: 'A course platform that marks a module complete and then surfaces related concepts the user had not considered.' },
-        { name: 'Forced Downtime',               cat: 'Interruption', desc: 'Introduces mandatory waiting periods that cannot be bypassed, creating space for reflection and breaking cycles of continuous engagement.', ex: 'A news app that limits reading to a set number of articles per day with no option to bypass the limit.' },
-        { name: 'Induce Pauses',                 cat: 'Interruption', desc: 'Deliberately slows transitions or responses to create natural moments of pause and reflection within the flow of use.', ex: 'A checkout flow with a brief intentional delay before the final purchase confirmation is processed.' },
-        { name: 'Limited Zones',                 cat: 'Boundary',     desc: 'Restricts access to parts of the interface to create intentional boundaries around certain types of content or behaviour.', ex: 'A social feed that limits how many profiles a user can follow to encourage intentional connection choices.' },
-        { name: 'Mimic',                         cat: 'Reflection',   desc: 'Reflects the user\'s own behaviour back to them in a way that prompts awareness of patterns they may not have consciously noticed.', ex: 'A weekly screen-time summary presented as a visual mirror of the user\'s daily routines and habits.' },
-        { name: 'Misleading Standards',          cat: 'Perspective',  desc: 'Presents alternative norms or statistics to challenge assumptions about what constitutes normal or expected behaviour.', ex: 'Showing that most users spend less than 10 minutes per day on the platform, reframing the user\'s own usage.' },
-        { name: 'Offer Multiple Points of View', cat: 'Perspective',  desc: 'Forces the user to consider at least two alternative perspectives before proceeding with an action or decision.', ex: 'Before posting, the platform presents counter-arguments to the content the user is about to share.' },
-        { name: 'Remind of the Consequences',   cat: 'Consequence',  desc: 'Makes the downstream effects of an action visible before it is taken, giving the user the information they need to decide consciously.', ex: 'Before deleting an account, the system lists all data, connections and history that will be permanently removed.' },
-        { name: 'Request Additional Confirmations', cat: 'Interruption', desc: 'Adds deliberate friction to irreversible or high-impact actions through multiple confirmation steps, slowing down impulsive decisions.', ex: 'A finance app that requires three confirmations and a typed reason before processing a large transfer.' },
+        { name: 'Betrayal',                         cat: 'Consequence',  desc: 'Failing to uphold a clear or unspoken agreement with players or users.' },
+        { name: 'Blatant Lie',                      cat: 'Transparency', desc: 'A deliberate falsehood in the interface that forces the user to question what they are seeing and reconsider their trust in the system.' },
+        { name: 'Checkpoint Starvation',            cat: 'Consequence',  desc: 'Limiting players\' ability to save the game progress to increase tension and value of survival.' },
+        { name: 'Confront the User',                cat: 'Interruption', desc: 'Interrupts the automatic flow to present the user with the direct consequences of their actions, restoring their capacity to decide consciously.' },
+        { name: 'Crash & Burn',                     cat: 'Consequence',  desc: 'Intentional, simulated technical disruptions to deceive the user into believing a critical error has occurred.' },
+        { name: 'Double Twist',                     cat: 'Reflection',   desc: 'Subverts the user\'s expectations twice in sequence — creating surprise and a moment of genuine reflection on assumptions.' },
+        { name: 'Elimination of the Safetynet',    cat: 'Consequence',  desc: 'Removes undo, restore, or cancel options to make actions feel genuinely consequential and encourage more deliberate decision-making.' },
+        { name: 'Faux Finale',                      cat: 'Reflection',   desc: 'A deception pattern that tricks the player into believing the game has concluded or that their character has died, only to reveal further gameplay or a narrative twist.' },
+        { name: 'Forced Downtime',                  cat: 'Interruption', desc: 'Introduces mandatory waiting periods that cannot be bypassed, creating space for reflection and breaking cycles of continuous engagement.' },
+        { name: 'Induce Pauses',                    cat: 'Interruption', desc: 'Slowing the user\'s interaction flow by inserting moments of forced stillness.' },
+        { name: 'Limited Zones',                    cat: 'Boundary',     desc: 'Temporarily restricting the player\'s abilities, inventory, or character choice.' },
+        { name: 'Mimic',                            cat: 'Reflection',   desc: 'A term, object, character or action that mimics a harmless or beneficial thing to deceive users, functioning instead as a trap or hostile entity.' },
+        { name: 'Misleading Standards',             cat: 'Perspective',  desc: 'Presents alternative norms or statistics to challenge assumptions about what constitutes normal or expected behaviour.' },
+        { name: 'Offer Multiple Points of View',    cat: 'Perspective',  desc: 'Guiding the user toward more balanced and reflective decisions by presenting alternative perspectives.' },
+        { name: 'Remind of the Consequences',       cat: 'Consequence',  desc: 'Makes the downstream effects of an action visible before it is taken, giving the user the information they need to decide consciously.' },
+        { name: 'Request Additional Confirmations', cat: 'Interruption', desc: 'Confirmation steps in the interface that slow the user down, encourage reflection, and prevent impulsive or automatic decisions.' },
       ]
     },
     {
-      id: 'platforms', label: 'Platforms', tag: 'Platform',
+      id: 'platforms', label: 'Platforms', tag: 'Platform', ar: [1203, 1340],
       cards: [
-        { name: 'Instagram',     cat: 'Social Media',        desc: 'Photo and video sharing platform with stories, reels, direct messaging and a curated algorithmic feed optimised for engagement and time spent.' },
-        { name: 'TikTok',        cat: 'Social Media',        desc: 'Short-form video platform with a highly aggressive recommendation algorithm designed for continuous, uninterrupted viewing.' },
-        { name: 'YouTube',       cat: 'Streaming',           desc: 'Long-form video platform with autoplay, personalised recommendations and a subscription model that incentivises maximum watch time.' },
-        { name: 'Spotify',       cat: 'Streaming',           desc: 'Music and podcast streaming service with personalised playlists, daily mixes and continuous queue functionality.' },
-        { name: 'Twitter / X',   cat: 'Social Media',        desc: 'Real-time microblogging and news platform with an algorithm-driven feed, notifications and trending content designed for high-frequency use.' },
-        { name: 'LinkedIn',      cat: 'Professional Network',desc: 'Professional networking platform with feeds, messaging, job listings and engagement-driven content promotion.' },
-        { name: 'Netflix',       cat: 'Streaming',           desc: 'Video streaming service with autoplay, personalised recommendations and a catalogue designed to maximise time spent on platform.' },
-        { name: 'Duolingo',      cat: 'EdTech',              desc: 'Language learning app with streak mechanics, gamified rewards and daily notifications designed to build habitual, near-compulsive use.' },
-        { name: 'WhatsApp',      cat: 'Messaging',           desc: 'Messaging platform with read receipts, group chats, status updates and near-instant delivery expectations that create social pressure.' },
-        { name: 'Amazon',        cat: 'E-Commerce',          desc: 'Online retail platform with one-click purchasing, personalised recommendations and friction-minimised checkout flows.' },
-        { name: 'Google Search', cat: 'Search',              desc: 'Search engine and information gateway with personalised results, featured snippets and advertising integration throughout the experience.' },
-        { name: 'Reddit',        cat: 'Community',           desc: 'Community-based discussion platform with upvoting, infinite scroll and a reward system built around karma and peer recognition.' },
+        { name: 'Dating App',                   cat: 'Social Discovery', desc: 'A platform where users build a profile and browse potential matches, using swipes or filters to initiate connections.' },
+        { name: 'Video & Audio Streaming',      cat: 'Entertainment',    desc: 'A platform that delivers on-demand or live media content, curated by algorithm or user choice.' },
+        { name: 'Travel and Navigation',        cat: 'Utilities',        desc: 'A platform that assists users in planning routes, booking transport, or discovering locations in real time.' },
+        { name: 'E-Commerce & Online Stores',   cat: 'Commerce',         desc: 'A platform where users browse, compare, and purchase products or services through a digital storefront.' },
+        { name: 'Finance & Mobile Banking',     cat: 'Finance',          desc: 'A platform for managing personal finances, transferring money, and tracking spending through a mobile interface.' },
+        { name: 'Education',                    cat: 'Learning',         desc: 'A platform delivering structured learning content through courses, exercises, or assessments.' },
+        { name: 'Gaming',                       cat: 'Entertainment',    desc: 'An interactive platform where users engage with rule-based environments, challenges, and progression systems for entertainment.' },
+        { name: 'Health & Fitness',             cat: 'Wellness',         desc: 'A platform that tracks physical activity, nutrition, or wellbeing data to support personal health goals.' },
+        { name: 'On-Demand Subscription Services', cat: 'Commerce',      desc: 'A platform offering recurring access to content or services in exchange for a periodic payment.' },
+        { name: 'Utilities & System Tools',     cat: 'Productivity',     desc: 'Software designed to manage device functions, settings, or productivity tasks rather than social or commercial goals.' },
       ]
     },
     {
-      id: 'challenges', label: 'Ethical Challenges', tag: 'Ethical\nChallenge',
+      id: 'challenges', label: 'Challenges', tag: 'Challenges!', ar: [1203, 993],
       cards: [
-        { name: 'Time & Attention',    cat: 'Time & Attention',       desc: 'Does your application respect the time users spend on it, or does it extract attention without offering equivalent value in return?' },
-        { name: 'Meaningful Engagement', cat: 'Time & Attention',     desc: 'Is the engagement your interface creates meaningful, or compulsive? Would users describe time spent on your product as time well used?' },
-        { name: 'Time Audit',          cat: 'Time & Attention',       desc: 'If users could see exactly how much time they spend on your product each week, would they be comfortable with that number?' },
-        { name: 'Reason to Return',    cat: 'Meaningful Interactions',desc: 'Why would users return to your product if not out of habit or dependency? What genuine value does it offer that they would seek out consciously?' },
-        { name: 'Genuine Offer',       cat: 'Meaningful Interactions',desc: 'What does your application genuinely offer its users beyond engagement metrics? Is this communicated clearly in the interface?' },
-        { name: 'Worth the Attention', cat: 'Meaningful Interactions',desc: 'Is the value your product provides worth the attention it requires? How would you measure this from the user\'s perspective, not the platform\'s?' },
-        { name: 'Informed Consent',    cat: 'Manipulation & Consent', desc: 'Are users fully aware of what they agree to when they interact with your interface? Are the terms of the relationship genuinely transparent?' },
-        { name: 'Decision Architecture', cat: 'Manipulation & Consent', desc: 'Does your design make it easier or harder for users to make informed decisions? Which choices does your interface make visible, and which does it obscure?' },
-        { name: 'Visible Consequences', cat: 'Manipulation & Consent', desc: 'Would users make the same choices if all consequences were made fully visible before acting? What would change if they could see everything?' },
-        { name: 'Exit Design',         cat: 'Autonomy & Dependency',  desc: 'Does your interface make it genuinely easy for users to leave, pause or take a break? Or does it create obstacles and friction against stopping?' },
-        { name: 'Intentional Use',     cat: 'Autonomy & Dependency',  desc: 'Is your product designed to be used intentionally, or to be impossible to stop using? What is the difference between these two versions of your interface?' },
-        { name: 'Who Does It Serve',   cat: 'Autonomy & Dependency',  desc: 'Who does your interface ultimately serve — the user or the platform? When these interests conflict, whose side does the design take?' },
-        { name: 'Without Metrics',     cat: 'Value & Continuity',     desc: 'What would change in your design if you could not measure engagement, time-on-platform or return visits? What would you still care about?' },
-        { name: 'Long-Term Value',     cat: 'Value & Continuity',     desc: 'How does your interface create long-term value for users rather than short-term attention? Is there a version of your product that makes users more capable over time?' },
-        { name: 'User Independence',   cat: 'Value & Continuity',     desc: 'If your users became more independent and self-sufficient over time, would your product still work? Is dependency a feature or a flaw in your design?' },
+        { name: 'How can we ensure the user always knows where they are in the system?',       cat: 'Wayfinding' },
+        { name: 'How can we reduce the number of decisions a user must make at once?',         cat: 'Cognitive Load' },
+        { name: 'How can we make the most important action the most visible one?',             cat: 'Visual Hierarchy' },
+        { name: 'How can we encourage skepticism toward digital content?',                     cat: 'Critical Thinking' },
+        { name: 'How can we prevent users from ignoring critical information?',                cat: 'Attention' },
+        { name: 'How can we make it obvious what is clickable and what is not?',               cat: 'Affordance' },
+        { name: 'How can we slow down the pace of information consumption?',                   cat: 'Pacing' },
+        { name: 'How can we help users avoid mistakes?',                                       cat: 'Error Prevention' },
+        { name: 'How can we increase the perceived risk or importance of an action?',          cat: 'Consequence' },
+        { name: 'How can we slow down impulsive decision-making?',                             cat: 'Reflection' },
+        { name: 'How can we confirm that the user understood what just happened?',             cat: 'Feedback' },
+        { name: 'How can we create space for second thoughts?',                                cat: 'Reflection' },
+        { name: 'How can we encourage users to question what they are told?',                  cat: 'Critical Literacy' },
+        { name: 'How can we make users aware of what they are accepting?',                     cat: 'Consent' },
+        { name: 'How can we make users aware of what they cannot undo?',                       cat: 'Irreversibility' },
       ]
     },
     {
-      id: 'flow', label: 'Flow', tag: 'Flow',
+      id: 'flow', label: 'Flow', tag: 'Flow', ar: [1203, 1340],
       cards: [
-        { name: 'Onboarding',    cat: 'Entry',         desc: 'The first-time user experience. Screens that introduce the product, set expectations and guide the user through initial setup and orientation.' },
-        { name: 'Home / Feed',   cat: 'Navigation',    desc: 'The main content stream. A dynamically populated list or grid that serves as the central hub of the user\'s activity within the product.' },
-        { name: 'Detail View',   cat: 'Content',       desc: 'An expanded view of a single item — a post, product, article or profile — with full content and all available actions for that item.' },
-        { name: 'Profile',       cat: 'Identity',      desc: 'The user\'s identity space. Contains personal information, history, settings and the user\'s relationship with the platform over time.' },
-        { name: 'Search',        cat: 'Discovery',     desc: 'A discovery and filtering interface. Allows users to find content, people or products through direct query, browsing or filter application.' },
-        { name: 'Form',          cat: 'Input',         desc: 'A data entry screen. Collects information from the user through text fields, selections, toggles and other input mechanisms.' },
-        { name: 'Settings',      cat: 'Configuration', desc: 'Preferences and configuration. Allows users to control their experience, notifications, privacy settings and account details.' },
-        { name: 'Notification',  cat: 'Alert',         desc: 'Alert and message screens. Surfaces updates, responses and system messages that request or demand the user\'s attention.' },
-        { name: 'Checkout',      cat: 'Transaction',   desc: 'Purchase or action confirmation flow. The sequence of screens that completes a transaction, subscription or irreversible action.' },
-        { name: 'Modal / Dialog', cat: 'Overlay',      desc: 'An interrupting overlay that demands a response before the user can continue. Used for confirmations, alerts and focused inputs.' },
-        { name: 'Empty State',   cat: 'Status',        desc: 'Screens shown when content is absent — no results, no activity, no data. How the product communicates and handles absence.' },
-        { name: 'Error State',   cat: 'Status',        desc: 'Screens shown when something goes wrong. Communicates what happened, explains the failure and offers a clear path forward.' },
-        { name: 'Dashboard',     cat: 'Overview',      desc: 'A summary view that aggregates multiple data points or activity streams into a single readable overview.' },
-        { name: 'Tutorial',      cat: 'Guidance',      desc: 'Guided instruction screens that teach users how to use the product. Can be inline, overlaid or delivered step-by-step.' },
-        { name: 'Navigation',    cat: 'Structure',     desc: 'Menus, tabs and wayfinding elements. The structural layer that enables movement between sections and levels of the product.' },
+        { name: 'Landing Page',               cat: 'Entry',          desc: 'The first web page a user visits, usually designed to provide an overview or drive a specific action.' },
+        { name: 'Login Page',                 cat: 'Authentication',  desc: 'The interface where existing users provide credentials to authenticate and access their accounts.' },
+        { name: 'Sign-up Form',               cat: 'Authentication',  desc: 'A registration interface where new users input data to create a profile.' },
+        { name: 'Password Recovery',          cat: 'Authentication',  desc: 'A process (usually via email or security questions) allowing users to reset a forgotten password.' },
+        { name: 'Search Bar (Input)',          cat: 'Discovery',       desc: 'A UI field where users type keywords to look for specific content or products.' },
+        { name: 'Search Results',             cat: 'Discovery',       desc: 'The page displaying items retrieved in response to a user\'s search, ranked by relevance or algorithm.' },
+        { name: 'Navigation Menu',            cat: 'Navigation',      desc: 'A list of content that automatically loads more items as the user scrolls down.' },
+        { name: 'Feed',                       cat: 'Content',         desc: 'A continuously updating stream of content curated by an algorithm, designed to scroll infinitely without stopping point.' },
+        { name: 'Notification Pop-up',        cat: 'Alert',           desc: 'A small UI element that appears temporarily to alert the user about a status change or action result.' },
+        { name: 'Error Screen',               cat: 'Status',          desc: 'A page informing the user that an error occurred, such as a missing page or a failed transaction.' },
+        { name: 'Permission Request',         cat: 'System',          desc: 'A dialog box asking for user consent regarding privacy, tracking, or hardware access.' },
+        { name: 'Customer Support Chat',      cat: 'Support',         desc: 'A messaging interface (bot or live agent) to assist users with inquiries or issues.' },
+        { name: 'User Profile',               cat: 'Identity',        desc: 'A personal page displaying a user\'s identity, biography, and published content.' },
+        { name: 'Friends / Followers List',   cat: 'Social',          desc: 'A directory of accounts a user is connected to or follows. It defines the way how content is distributed.' },
+        { name: 'Content Creator / Editor',   cat: 'Creation',        desc: 'An interface where users produce, edit, and publish content such as posts, articles, or media.' },
+        { name: 'Product / Article Detail Page', cat: 'Content',      desc: 'A page containing information, specifications, and descriptions for a single specific item.' },
+        { name: 'Add to Cart',                cat: 'Commerce',        desc: 'A call-to-action button that places an item into the user\'s virtual shopping cart.' },
+        { name: 'Shopping Cart',              cat: 'Commerce',        desc: 'An overview page where users can review items and see a summary before proceeding to pay.' },
+        { name: 'Payment Screen',             cat: 'Commerce',        desc: 'A secure interface to enter payment details, such as credit card information or digital wallet credentials.' },
       ]
     },
     {
-      id: 'connectors', label: 'Connectors', tag: 'Connector',
+      id: 'connectors', label: 'Connectors', tag: 'Connector', ar: [1506, 994],
       cards: [
-        { name: 'Forward →',    cat: 'Linear',   desc: 'A direct progression from one screen to the next. The user moves forward in the flow through an explicit and intentional action.' },
-        { name: 'Back ←',       cat: 'Linear',   desc: 'A return to the previous screen. The user undoes a step, reconsiders a choice, or navigates back through a completed action.' },
-        { name: 'Branch ⋔',     cat: 'Decision', desc: 'A decision point with multiple possible paths. The user\'s choice or the system\'s logic determines which path is taken from this point.' },
-        { name: 'Loop ↺',       cat: 'Repeat',   desc: 'A return to a previous point in the flow. The user is brought back to an earlier screen, intentionally by design or automatically by the system.' },
-        { name: 'Skip ⤳',       cat: 'Optional', desc: 'An optional bypass of a step. The user can choose to proceed without engaging with a screen or completing an action.' },
-        { name: 'Dead End ✕',   cat: 'Terminal', desc: 'A terminal point with no forward progression. The flow stops here — the user must go back, start over, or exit the product.' },
+        { name: '"Back" Button',               cat: 'Navigation', desc: 'A navigation control that returns the user to the previous screen or state.' },
+        { name: 'Direct Flow Arrow',           cat: 'Navigation', desc: 'A visual indicator showing the path or sequence of the user journey.' },
+        { name: 'Decision Point (Yes/No Branch)', cat: 'Decision', desc: 'A logical fork in the workflow that directs the user to different paths based on their choice or a system condition.' },
+        { name: 'Time-out (System Waiting)',   cat: 'State',      desc: 'A state where the system is processing or waiting for a response before the user can proceed.' },
       ]
     },
   ];
@@ -1018,23 +1544,26 @@
   const cardOverlayClose = document.getElementById('card-overlay-close');
   const pageAnother      = document.getElementById('page-another');
 
-  // Each deck spreads into its own zone (fraction of viewport width)
-  // [0] = left edge fraction, [1] = right edge fraction, [2] = vertical center fraction
-  const ZONES = [
-    [0.0,  0.22, 0.38], // Friction Patterns — left
-    [0.18, 0.40, 0.45], // Platforms         — left-center
-    [0.36, 0.64, 0.35], // Challenges        — center
-    [0.60, 0.82, 0.45], // Flow              — right-center
-    [0.78, 1.0,  0.38], // Connectors        — right
-  ];
+  const mobileDeckBrowser = document.getElementById('mobile-deck-browser');
+
+  function isMobile() { return window.innerWidth <= 700; }
 
   function initDeckBrowser() {
     activeCardIdx = null; zoomDeckId = null;
+    cardOverlay.classList.remove('active');
+
+    if (isMobile()) {
+      initMobileDeckBrowser();
+    } else {
+      initDesktopDeckBrowser();
+    }
+  }
+
+  function initDesktopDeckBrowser() {
+    mobileDeckBrowser.innerHTML = '';
     pilesBar.innerHTML = '';
-    // clear any leftover table cards
     pageAnother.querySelectorAll('.table-card').forEach(c => c.remove());
     Object.keys(spreadCards).forEach(k => delete spreadCards[k]);
-    cardOverlay.classList.remove('active');
 
     DECKS.forEach((deck, i) => {
       const slot = document.createElement('div');
@@ -1050,8 +1579,59 @@
           </div>
         </div>
         <span class="pile-label">${deck.label}</span>`;
+      slot.style.setProperty('--pile-ar', `${deck.ar[0]}/${deck.ar[1]}`);
       slot.addEventListener('click', () => toggleDeck(deck.id, i, slot));
       pilesBar.appendChild(slot);
+    });
+  }
+
+  function initMobileDeckBrowser() {
+    pilesBar.innerHTML = '';
+    pageAnother.querySelectorAll('.table-card').forEach(c => c.remove());
+    Object.keys(spreadCards).forEach(k => delete spreadCards[k]);
+    mobileDeckBrowser.innerHTML = '';
+
+    DECKS.forEach((deck) => {
+      const section = document.createElement('div');
+      section.className = 'mob-deck-section';
+
+      const header = document.createElement('div');
+      header.className = 'mob-deck-header';
+      header.innerHTML = `
+        <span class="mob-deck-name">${deck.label}</span>
+        <span class="mob-deck-count">${deck.cards.length} cards</span>
+        <span class="mob-deck-arrow">→</span>`;
+
+      const grid = document.createElement('div');
+      grid.className = 'mob-card-grid';
+
+      deck.cards.forEach((card, cardIdx) => {
+        const cardEl = document.createElement('div');
+        cardEl.className = 'mob-card';
+        cardEl.style.aspectRatio = `${deck.ar[0]}/${deck.ar[1]}`;
+        cardEl.innerHTML = `
+          <span class="mob-card-tag">${deck.tag.replace(/\n/g,'<br>')}</span>
+          <span class="mob-card-name">${card.name}</span>`;
+        cardEl.addEventListener('click', () => openCard(deck.id, cardIdx));
+        grid.appendChild(cardEl);
+      });
+
+      header.addEventListener('click', () => {
+        const isOpen = section.classList.toggle('open');
+        // animate open/close
+        if (isOpen) {
+          grid.style.display = 'grid';
+          grid.style.opacity = '0';
+          requestAnimationFrame(() => { grid.style.transition = 'opacity 0.2s'; grid.style.opacity = '1'; });
+        } else {
+          grid.style.opacity = '0';
+          setTimeout(() => { grid.style.display = ''; grid.style.transition = ''; grid.style.opacity = ''; }, 200);
+        }
+      });
+
+      section.appendChild(header);
+      section.appendChild(grid);
+      mobileDeckBrowser.appendChild(section);
     });
   }
 
@@ -1076,35 +1656,36 @@
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     const CARD_W = Math.min(110, Math.round(vw * 0.12));
-    const CARD_H = CARD_W * 3.5 / 2.5;
+    const CARD_H = CARD_W * deck.ar[1] / deck.ar[0];
 
     // Each deck has its own independent zone on screen.
     // Zone: [arcCx_frac, arcCy_frac, arcR_frac, span_deg]
-    //   arcCx  = horizontal centre of this spread  (fraction of vw)
-    //   arcCy  = arc origin, below the spread      (fraction of vh, can exceed 1)
-    //   arcR   = radius — larger = flatter/higher arc (fraction of vh)
-    //   span   = total angular width in degrees, centred on 270° (straight up)
     const ZONES = [
-      [0.50, 1.95, 1.85,  30],  // Friction Patterns  — top middle
-      [0.18, 2.08, 1.38,  20],  // Flow               — central left
-      [0.78, 1.90, 1.45,  30],  // Ethical Challenges — central right
-      [0.22, 1.90, 1.45,  30],  // Platforms          — bottom left
-      [0.82, 2.08, 1.38,  20],  // Connectors         — bottom right
+      [0.50, 2.12, 2.00,  30],  // Friction Patterns  — top middle
+      [0.55, 1.813, 1.45, 25],  // Platforms          — central right
+      [0.45, 1.97, 1.38,  20],  // Ethical Challenges — bottom left
+      [0.45, 1.813, 1.45, 25],  // Flow               — central left
+      [0.55, 1.97, 1.38,  20],  // Connectors         — bottom right
     ];
 
     const [cxF, cyF, rF, span] = ZONES[deckIdx];
     const arcCx   = vw * cxF;
     const arcCy   = vh * cyF;
     const arcR    = vh * rF;
-    const degStart = 270 - span / 2;
+    const isRight  = deckIdx === 1 || deckIdx === 4;
+    const isLeft   = deckIdx === 2 || deckIdx === 3;
+    const degStart = isRight ? 270 + span : isLeft ? 270 - span : 270 - span / 2;
+    const degDir   = isRight ? -1 : 1;
 
     spreadCards[deckId] = [];
 
     deck.cards.forEach((card, i) => {
       const el = document.createElement('div');
       el.className = 'table-card';
-      el.innerHTML = `<span class="table-card-tag">${deck.tag.replace(/\n/g,'<br>')}</span><span class="table-card-name">${card.name}</span>`;
-      el.style.width  = CARD_W + 'px';
+      const imgSrc = cardImageSrc(deck, card);
+      el.innerHTML = `<img class="table-card-img" src="${imgSrc}" alt="" onload="this.classList.add('loaded')" onerror="this.remove()"><span class="table-card-tag">${deck.tag.replace(/\n/g,'<br>')}</span><span class="table-card-name">${card.name}</span>`;
+      el.style.width       = CARD_W + 'px';
+      el.style.aspectRatio = `${deck.ar[0]}/${deck.ar[1]}`;
       el.style.zIndex = deckIdx * 20 + i;
       el.style.left      = (pileCX - CARD_W / 2) + 'px';
       el.style.top       = (pileCY - CARD_H / 2) + 'px';
@@ -1113,10 +1694,10 @@
       pageAnother.appendChild(el);
 
       const t        = n === 1 ? 0.5 : i / (n - 1);
-      const deg      = degStart + t * span;
+      const deg      = degStart + degDir * t * span;
       const rad      = deg * Math.PI / 180;
       const finalX   = arcCx + arcR * Math.cos(rad) - CARD_W / 2;
-      const finalY   = Math.min(arcCy + arcR * Math.sin(rad) - CARD_H / 2, vh - 165);
+      const finalY   = Math.min(arcCy + arcR * Math.sin(rad) - CARD_H / 2, vh - 230);
       const finalRot = deg - 270 + rand(-2, 2);
 
       setTimeout(() => {
@@ -1135,9 +1716,10 @@
     const cards = spreadCards[deckId] || [];
     const pRect = slotEl.getBoundingClientRect();
     const aRect = pageAnother.getBoundingClientRect();
-    const pileCX = pRect.left - aRect.left + pRect.width  / 2;
-    const pileCY = pRect.top  - aRect.top  + pRect.height / 2;
-    const CARD_W = 80, CARD_H = 80 * 3.5 / 2.5;
+    const pileCX = pRect.left - aRect.left + pRect.width  / 2 -10;
+    const pileCY = pRect.top  - aRect.top  + pRect.height / 2 -30;
+    const deck   = DECKS.find(d => d.id === deckId);
+    const CARD_W = 80, CARD_H = 80 * deck.ar[1] / deck.ar[0];
 
     cards.forEach((el, i) => {
       setTimeout(() => {
@@ -1148,6 +1730,13 @@
       setTimeout(() => el.remove(), i * 30 + 700);
     });
     delete spreadCards[deckId];
+  }
+
+  // Resolve card image: explicit img field, or slug-based lookup in cards/
+  function cardImageSrc(deck, card) {
+    if (card.img) return card.img;
+    const slug = card.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    return `cards/${slug}.png`;
   }
 
   function openCard(deckId, idx) {
@@ -1161,7 +1750,11 @@
     if (cardEls[idx]) cardEls[idx].style.zIndex = 400;
 
     cardOverlayInner.innerHTML = `
-      <div class="card-face-large">
+      <div class="card-face-large" style="aspect-ratio:${deck.ar[0]}/${deck.ar[1]};position:relative;overflow:hidden;">
+        <img class="card-face-img" src="${cardImageSrc(deck, card)}"
+             style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;"
+             onerror="this.style.display='none'"
+             onload="this.style.display='block'">
         <span class="card-face-tag">${deck.tag.replace(/\n/g,'<br>')}</span>
         <span class="card-face-cat">${card.cat || ''}</span>
         <span class="card-face-name">${card.name}</span>

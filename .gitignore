@@ -1,0 +1,7 @@
+.DS_Store
+*.bak
+.claude/
+# local library copies — loaded from CDN instead
+aframe.min.js
+mindar-image-aframe.js
+mindar-image-three.js
