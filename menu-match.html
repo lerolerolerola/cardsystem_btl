@@ -481,7 +481,7 @@
     #section-menu { overflow: hidden; }
     .slab { left: -24px; right: -24px; }
     .slab img { width: 62%; }
-    .row { height: 150px; margin-top: -48px; }
+    .row { height: 150px; margin-top: -72px; }
     .row:first-child { margin-top: 0; }
     .row.go-left:hover  .slab { transform: translateX(-120px); }
     .row.go-right:hover .slab { transform: translateX(120px); }
@@ -995,9 +995,9 @@
     for (let i = pParticles.length - 1; i >= 0; i--) {
       const p = pParticles[i];
 
-      // Gravity (slower on mobile so letters are visible before scroll)
+      // Gravity (slightly slower on mobile so letters are visible before scroll)
       const isMob = window.innerWidth < 700;
-      p.vy   += isMob ? 0.22 : 0.5;
+      p.vy   += isMob ? 0.35 : 0.5;
       p.x    += p.vx;
       p.y    += p.vy;
       p.rot  += p.vrot;
@@ -1053,8 +1053,8 @@
       const mob = window.innerWidth < 700;
       pParticles.push({
         el, x: px, y: py,
-        vx: rand(mob ? -1 : -2, mob ? 1 : 2),
-        vy: rand(mob ? 0.3 : 1, mob ? 1.5 : 4),
+        vx: rand(mob ? -1.5 : -2, mob ? 1.5 : 2),
+        vy: rand(mob ? 0.6 : 1,   mob ? 2.5 : 4),
         rot: 0,
         vrot: rand(-8, 8),
       });
