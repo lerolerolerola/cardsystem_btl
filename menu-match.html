@@ -338,14 +338,18 @@
   .table-card {
     position: absolute;
     width: 80px;
-    background: #fff; border: 1.5px dashed #111; border-radius: 5px;
-    padding: 8px 6px; display: flex; flex-direction: column;
+    background: transparent; border: none; border-radius: 5px;
+    padding: 0; display: flex; flex-direction: column;
     cursor: pointer; user-select: none; overflow: hidden;
     transition: transform 0.65s cubic-bezier(0.15,0,0.3,1),
                 left      0.65s cubic-bezier(0.15,0,0.3,1),
                 top       0.65s cubic-bezier(0.15,0,0.3,1),
                 opacity   0.3s,
                 box-shadow 0.15s;
+  }
+  /* fallback style when no image loaded */
+  .table-card:not(:has(.table-card-img.loaded)) {
+    background: #fff; border: 1.5px dashed #111; padding: 8px 6px;
   }
   .table-card:hover {
     box-shadow: 0 10px 28px rgba(0,0,0,0.18);
@@ -354,7 +358,7 @@
   .table-card-img {
     position: absolute; inset: 0;
     width: 100%; height: 100%;
-    object-fit: cover; border-radius: 4px;
+    object-fit: contain; border-radius: 4px;
     display: none;
   }
   .table-card-img.loaded { display: block; }
@@ -384,7 +388,7 @@
 
   .card-face-large {
     width: 200px; min-width: 200px; aspect-ratio: 1203/1340;
-    background: #fff; border-radius: 10px; border: 1.5px dashed rgba(255,255,255,0.4);
+    background: transparent; border-radius: 10px; border: none;
     padding: 20px 16px; display: flex; flex-direction: column;
   }
   .card-face-tag  { font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.4; line-height: 1.5; margin-bottom: auto; font-family: 'IBM Plex Mono', monospace; }
@@ -1799,7 +1803,6 @@
 
   // Resolve card image: explicit img field, or slug-based lookup in cards/
   function cardImageSrc(deck, card) {
-    return ''; // images hidden temporarily — re-enable when ready
     if (card.img) return card.img;
     const slug = card.name.toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
@@ -1820,7 +1823,7 @@
     cardOverlayInner.innerHTML = `
       <div class="card-face-large" style="aspect-ratio:${deck.ar[0]}/${deck.ar[1]};position:relative;overflow:hidden;">
         <img class="card-face-img" src="${cardImageSrc(deck, card)}"
-             style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;"
+             style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:none;"
              onerror="this.style.display='none'"
              onload="this.style.display='block'">
         <span class="card-face-tag">${deck.tag.replace(/\n/g,'<br>')}</span>
