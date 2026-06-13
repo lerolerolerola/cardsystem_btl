@@ -384,12 +384,12 @@
   }
   .card-overlay-close:hover { opacity: 1; }
 
-  .card-overlay-inner { display: flex; gap: 40px; align-items: flex-start; max-width: 760px; width: 100%; }
+  .card-overlay-inner { display: flex; flex-direction: column; gap: 24px; align-items: center; max-width: 480px; width: 100%; }
 
   .card-face-large {
-    width: 200px; min-width: 200px; aspect-ratio: 1203/1340;
+    width: 100%; max-width: 380px; aspect-ratio: 1203/1340;
     background: transparent; border-radius: 10px; border: none;
-    padding: 20px 16px; display: flex; flex-direction: column;
+    padding: 0; display: flex; flex-direction: column;
   }
   .card-face-tag  { font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.4; line-height: 1.5; margin-bottom: auto; font-family: 'IBM Plex Mono', monospace; }
   .card-face-cat  { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.5; margin-bottom: 6px; color: #111; font-family: 'IBM Plex Mono', monospace; }
@@ -545,7 +545,7 @@
       gap: 24px;
       width: 100%;
     }
-    .card-face-large { width: 140px; min-width: 140px; padding: 14px 12px; }
+    .card-face-large { width: 100%; max-width: 280px; padding: 0; }
     .card-face-name { font-size: 12px; }
     .card-face-cat  { font-size: 9px; }
     .card-info-panel { max-height: none; overflow-y: visible; width: 100%; text-align: left; }
@@ -1874,16 +1874,10 @@
              onerror="this.style.display='none'"
              onload="this.style.display='block'">
       </div>
-      <div class="card-info-panel">
-        <h2>${card.name}</h2>
-        <p class="card-info-deckcat">${deck.label}${card.cat ? ' · ' + card.cat : ''}</p>
-        <p class="card-info-desc">${card.desc || ''}</p>
-        ${card.ex ? `<p class="card-info-ex-label">Example</p><p class="card-info-ex">${card.ex}</p>` : ''}
-        <div class="card-overlay-nav">
-          <button class="card-nav-btn" id="card-prev" ${idx === 0 ? 'disabled' : ''}>← Prev</button>
-          <span class="card-nav-count">${idx + 1} / ${deck.cards.length}</span>
-          <button class="card-nav-btn" id="card-next" ${idx === deck.cards.length - 1 ? 'disabled' : ''}>Next →</button>
-        </div>
+      <div class="card-overlay-nav">
+        <button class="card-nav-btn" id="card-prev" ${idx === 0 ? 'disabled' : ''}>← Prev</button>
+        <span class="card-nav-count">${idx + 1} / ${deck.cards.length}</span>
+        <button class="card-nav-btn" id="card-next" ${idx === deck.cards.length - 1 ? 'disabled' : ''}>Next →</button>
       </div>`;
 
     cardOverlayInner.querySelector('#card-prev')?.addEventListener('click', () => openCard(deckId, idx - 1));
