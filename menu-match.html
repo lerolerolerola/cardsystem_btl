@@ -1026,7 +1026,7 @@
 
       // Gravity (slightly slower on mobile so letters are visible before scroll)
       const isMob = window.innerWidth < 700;
-      p.vy   += isMob ? 0.35 : 0.5;
+      p.vy   += isMob ? 0.35 : 0.65;
       p.x    += p.vx;
       p.y    += p.vy;
       p.rot  += p.vrot;
@@ -1083,7 +1083,7 @@
       pParticles.push({
         el, x: px, y: py,
         vx: rand(mob ? -1.5 : -2, mob ? 1.5 : 2),
-        vy: rand(mob ? 0.6 : 1,   mob ? 2.5 : 4),
+        vy: rand(mob ? 0.6 : 1.5, mob ? 2.5 : 5),
         rot: 0,
         vrot: rand(-8, 8),
       });
@@ -1177,7 +1177,7 @@
       const targetY = sectionMenu.getBoundingClientRect().top + window.scrollY;
       await new Promise(resolve => {
         const start = window.scrollY, dist = targetY - start;
-        const duration = 950;
+        const duration = 750;
         const startT = performance.now();
         function step(now) {
           const t = Math.min((now - startT) / duration, 1);
