@@ -499,6 +499,9 @@
     .row:first-child { margin-top: 0; }
     .row.go-left:hover  .slab { transform: translateX(-120px); }
     .row.go-right:hover .slab { transform: translateX(120px); }
+    /* fly-out: block slides off-screen before page opens */
+    .row.go-left.fly-out  .slab { transform: translateX(-115vw); transition: transform 0.32s ease-in; }
+    .row.go-right.fly-out .slab { transform: translateX(115vw);  transition: transform 0.32s ease-in; }
     /* keep labels inside the diamond on mobile */
     .label { font-size: 14px; bottom: auto; top: 42%; }
     .row.go-left  .label { left: 30%; }
@@ -957,7 +960,16 @@
     const row = e.target.closest('.row[data-page]');
     if (!row) return;
     e.preventDefault();
-    showPage(row.dataset.page);
+    if (window.innerWidth <= 700) {
+      // Mobile: fly the slab off-screen first, then open the page
+      row.classList.add('fly-out');
+      setTimeout(() => {
+        row.classList.remove('fly-out');
+        showPage(row.dataset.page);
+      }, 340);
+    } else {
+      showPage(row.dataset.page);
+    }
   });
 
   window.showHome = showHome;
