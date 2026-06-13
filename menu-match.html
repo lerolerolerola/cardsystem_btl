@@ -1152,7 +1152,7 @@
 
     // Scroll to menu — wait longer on mobile so letters are visibly falling first.
     const isMobScroll = window.innerWidth < 700;
-    const delay = isMobScroll ? 900 : 800;
+    const delay = isMobScroll ? 720 : 800;
     await sleep(delay);
     const targetY = sectionMenu.getBoundingClientRect().top + window.scrollY;
     // Custom eased scroll so iOS Safari doesn't crawl with behavior:'smooth'
