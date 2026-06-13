@@ -1172,12 +1172,25 @@
       });
       await sleep(300);
     } else {
-      // Desktop: use native browser smooth scroll (runs off main thread, won't
-      // stutter during physics collisions). Start early so letters fall visibly
-      // into the menu shapes as the viewport descends.
+      // Desktop: slow custom scroll so letters fall through the visible viewport.
       await sleep(120);
-      sectionMenu.scrollIntoView({ behavior: 'smooth' });
-      await sleep(2000);
+      const targetY = sectionMenu.getBoundingClientRect().top + window.scrollY;
+      await new Promise(resolve => {
+        const start = window.scrollY, dist = targetY - start;
+        const duration = 2600; // slow — letters need time to fall into shapes
+        const startT = performance.now();
+        function step(now) {
+          const t = Math.min((now - startT) / duration, 1);
+          // mostly linear with soft ease-in and ease-out
+          const ease = t < 0.1 ? 5*t*t
+                     : t < 0.9 ? 0.05 + (t - 0.1) * (0.9 / 0.8)
+                     : 0.95 + (1 - Math.pow(1-(t-0.9)/0.1, 2)) * 0.05;
+          window.scrollTo(0, start + dist * ease);
+          if (t < 1) requestAnimationFrame(step); else resolve();
+        }
+        requestAnimationFrame(step);
+      });
+      await sleep(300);
     }
 
     // Prepare next phrase so the text is ready if they scroll back up
