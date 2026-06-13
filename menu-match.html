@@ -495,7 +495,7 @@
     #section-menu { overflow: hidden; }
     .slab { left: -24px; right: -24px; }
     .slab img { width: 62%; }
-    .row { height: 150px; margin-top: -82px; }
+    .row { height: 150px; margin-top: -100px; }
     .row:first-child { margin-top: 0; }
     .row.go-left:hover  .slab { transform: translateX(-120px); }
     .row.go-right:hover .slab { transform: translateX(120px); }
@@ -1154,14 +1154,14 @@
 
     // Scroll to menu — wait longer on mobile so letters are visibly falling first.
     const isMobScroll = window.innerWidth < 700;
-    const delay = isMobScroll ? 1800 : 800;
+    const delay = isMobScroll ? 900 : 800;
     await sleep(delay);
     const targetY = sectionMenu.getBoundingClientRect().top + window.scrollY;
     // Custom eased scroll so iOS Safari doesn't crawl with behavior:'smooth'
     await new Promise(resolve => {
       const start    = window.scrollY;
       const dist     = targetY - start;
-      const duration = isMobScroll ? 420 : 700;
+      const duration = isMobScroll ? 220 : 700;
       const startT   = performance.now();
       function step(now) {
         const t = Math.min((now - startT) / duration, 1);
