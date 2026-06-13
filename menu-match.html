@@ -212,13 +212,13 @@
   .hl-purple { background: #c8aee8; }
 
   .card-gallery {
-    display: grid; grid-template-columns: repeat(4, 1fr);
-    gap: 16px; margin: 40px 0;
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    gap: 12px; margin: 40px 0;
   }
-  @media (max-width: 600px) { .card-gallery { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) { .card-gallery { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
   .gallery-card { border: 1.5px dashed #ccc; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; }
-  .gallery-card-face { aspect-ratio: 1203/1340; padding: 0; display: flex; flex-direction: column; overflow: hidden; position: relative; }
-  .gallery-card-face img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .gallery-card-face { aspect-ratio: 3/4; padding: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; background: #f7f7f7; }
+  .gallery-card-face img { width: 100%; height: 100%; object-fit: contain; display: block; }
   .gallery-card-face .gallery-card-tag { position: absolute; top: 8px; left: 8px; }
   .gallery-card-tag { font-size: 9px; letter-spacing: 0.05em; opacity: 0.6; line-height: 1.4; margin-bottom: auto; }
   .gallery-card-info { padding: 10px 10px 12px; border-top: 1.5px dashed #ccc; }
@@ -781,10 +781,11 @@
     </div>
 
     <div class="card-gallery">
-      <div class="gallery-card"><div class="gallery-card-face"><img src="cards/friction-patterns.png" onerror="this.style.display='none'" alt=""><span class="gallery-card-tag">Friction<br>Patterns</span></div><div class="gallery-card-info"><div class="gallery-card-name">Friction Patterns</div><div class="gallery-card-desc">Design strategies that introduce intentional obstacles, prompting reflection and conscious choice.</div></div></div>
-      <div class="gallery-card"><div class="gallery-card-face"><img src="cards/platform.png" onerror="this.style.display='none'" alt=""><span class="gallery-card-tag">Platform</span></div><div class="gallery-card-info"><div class="gallery-card-name">Platform</div><div class="gallery-card-desc">Sets the digital context for the round — social media, e-commerce, streaming, banking, and more.</div></div></div>
-      <div class="gallery-card"><div class="gallery-card-face"><img src="cards/ethical-challenge.png" onerror="this.style.display='none'" alt=""><span class="gallery-card-tag">Ethical<br>Challenge</span></div><div class="gallery-card-info"><div class="gallery-card-name">Ethical Challenge</div><div class="gallery-card-desc">Poses the moral question the round must address — autonomy, consent, attention, manipulation.</div></div></div>
-      <div class="gallery-card"><div class="gallery-card-face"><img src="cards/flow-connectors.png" onerror="this.style.display='none'" alt=""><span class="gallery-card-tag">Flow &amp;<br>Connectors</span></div><div class="gallery-card-info"><div class="gallery-card-name">Flow &amp; Connectors</div><div class="gallery-card-desc">Building blocks for mapping user journeys — screens, actions and the paths between them.</div></div></div>
+      <div class="gallery-card"><div class="gallery-card-face"><img src="cards/betrayal.png" alt="Betrayal — Friction Pattern card"></div><div class="gallery-card-info"><div class="gallery-card-name">Friction Patterns</div><div class="gallery-card-desc">Design strategies that introduce intentional obstacles, prompting reflection and conscious choice.</div></div></div>
+      <div class="gallery-card"><div class="gallery-card-face"><img src="cards/dating-app.png" alt="Dating App — Platform card"></div><div class="gallery-card-info"><div class="gallery-card-name">Platform</div><div class="gallery-card-desc">Sets the digital context for the round — social media, e-commerce, streaming, banking, and more.</div></div></div>
+      <div class="gallery-card"><div class="gallery-card-face"><img src="cards/how-can-we-slow-down-impulsive-decision-making.png" alt="Ethical Challenge card"></div><div class="gallery-card-info"><div class="gallery-card-name">Ethical Challenge</div><div class="gallery-card-desc">Poses the moral question the round must address — autonomy, consent, attention, manipulation.</div></div></div>
+      <div class="gallery-card"><div class="gallery-card-face"><img src="cards/landing-page.png" alt="Landing Page — Flow card"></div><div class="gallery-card-info"><div class="gallery-card-name">Flow</div><div class="gallery-card-desc">Building blocks for mapping user journeys — individual screens and interface elements.</div></div></div>
+      <div class="gallery-card"><div class="gallery-card-face"><img src="cards/direct-flow-arrow.png" alt="Direct Flow Arrow — Connector card"></div><div class="gallery-card-info"><div class="gallery-card-name">Connectors</div><div class="gallery-card-desc">Small cards that establish the relationships and paths between screens in a user journey.</div></div></div>
     </div>
 
     <div class="body-text">
