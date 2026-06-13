@@ -1172,9 +1172,24 @@
       });
       await sleep(300);
     } else {
-      await sleep(800);
-      sectionMenu.scrollIntoView({ behavior: 'smooth' });
-      await sleep(1200);
+      // Desktop: start scrolling almost immediately so the viewport moves down
+      // alongside the falling letters — making the collision with shapes visible.
+      await sleep(120);
+      const targetY = sectionMenu.getBoundingClientRect().top + window.scrollY;
+      await new Promise(resolve => {
+        const start = window.scrollY, dist = targetY - start;
+        const duration = 1800; // slow scroll so letters fall through the visible area
+        const startT = performance.now();
+        function step(now) {
+          const t = Math.min((now - startT) / duration, 1);
+          // ease-in-out but weighted toward ease-in so viewport moves early
+          const ease = t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
+          window.scrollTo(0, start + dist * ease);
+          if (t < 1) requestAnimationFrame(step); else resolve();
+        }
+        requestAnimationFrame(step);
+      });
+      await sleep(400);
     }
 
     // Prepare next phrase so the text is ready if they scroll back up
