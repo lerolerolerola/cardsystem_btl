@@ -1013,7 +1013,7 @@
 
       // Gravity (slightly slower on mobile so letters are visible before scroll)
       const isMob = window.innerWidth < 700;
-      p.vy   += isMob ? 0.35 : 0.5;
+      p.vy   += isMob ? 0.35 : 0.22;
       p.x    += p.vx;
       p.y    += p.vy;
       p.rot  += p.vrot;
@@ -1069,8 +1069,8 @@
       const mob = window.innerWidth < 700;
       pParticles.push({
         el, x: px, y: py,
-        vx: rand(mob ? -1.5 : -2, mob ? 1.5 : 2),
-        vy: rand(mob ? 0.6 : 1,   mob ? 2.5 : 4),
+        vx: rand(mob ? -1.5 : -1.2, mob ? 1.5 : 1.2),
+        vy: rand(mob ? 0.6 : 0.4,   mob ? 2.5 : 1.8),
         rot: 0,
         vrot: rand(-8, 8),
       });
