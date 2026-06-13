@@ -1177,7 +1177,7 @@
       const targetY = sectionMenu.getBoundingClientRect().top + window.scrollY;
       await new Promise(resolve => {
         const start = window.scrollY, dist = targetY - start;
-        const duration = 2600; // slow — letters need time to fall into shapes
+        const duration = 1600; // letters need time to fall into shapes
         const startT = performance.now();
         function step(now) {
           const t = Math.min((now - startT) / duration, 1);
