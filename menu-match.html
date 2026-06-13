@@ -467,16 +467,26 @@
     background: #fff; padding: 8px 6px;
     display: flex; flex-direction: column;
     cursor: pointer; transition: box-shadow 0.15s;
+    position: relative; overflow: hidden;
   }
   .mob-card:active { box-shadow: 0 6px 18px rgba(0,0,0,0.15); }
+  .mob-card-img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: contain; display: none;
+  }
+  .mob-card-img.loaded { display: block; }
+  .mob-card:has(.mob-card-img.loaded) { border-color: transparent; padding: 0; background: transparent; }
+  .mob-card:has(.mob-card-img.loaded) .mob-card-tag,
+  .mob-card:has(.mob-card-img.loaded) .mob-card-name { opacity: 0; }
   .mob-card-tag {
     font-size: 5.5px; letter-spacing: 0.1em; text-transform: uppercase;
     opacity: 0.4; line-height: 1.4; margin-bottom: auto;
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace; position: relative; z-index: 1;
   }
   .mob-card-name {
     font-size: 8px; font-weight: 600; line-height: 1.3; color: #111;
-    font-family: 'IBM Plex Mono', monospace; margin-top: 6px;
+    font-family: 'IBM Plex Mono', monospace; margin-top: 6px; position: relative; z-index: 1;
   }
 
   /* ── RESPONSIVE ── */
@@ -485,7 +495,7 @@
     #section-menu { overflow: hidden; }
     .slab { left: -24px; right: -24px; }
     .slab img { width: 62%; }
-    .row { height: 150px; margin-top: -72px; }
+    .row { height: 150px; margin-top: -82px; }
     .row:first-child { margin-top: 0; }
     .row.go-left:hover  .slab { transform: translateX(-120px); }
     .row.go-right:hover .slab { transform: translateX(120px); }
@@ -495,7 +505,7 @@
     .row.go-right .label { right: 30%; }
 
     /* inner pages */
-    .inner-page { padding: 70px 24px 80px; }
+    .inner-page { padding: 70px 24px 80px; -webkit-overflow-scrolling: touch; }
     .back-btn { left: 24px; top: 24px; }
     .page-title { margin-bottom: 32px; }
 
@@ -523,6 +533,7 @@
       padding: 56px 20px 40px;
       align-items: flex-start;
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
       background: rgba(17,17,17,0.97);
     }
     .card-overlay-inner {
@@ -543,6 +554,7 @@
     #page-another {
       height: auto; min-height: 100dvh;
       overflow-y: auto; padding: 0 24px;
+      -webkit-overflow-scrolling: touch;
     }
     #piles-bar { display: none; }
     #cards-download { display: none; }
@@ -1249,7 +1261,7 @@
   /* ── RANDOMIZER ── */
   const platforms  = ['Dating App','Video & Audio Streaming','Travel and Navigation','E-Commerce & Online Stores','Finance & Mobile Banking','Education','Gaming','Health & Fitness','On-Demand Subscription Services','Utilities & System Tools'];
   const challenges = ['How can we ensure the user always knows where they are in the system?','How can we reduce the number of decisions a user must make at once?','How can we make the most important action the most visible one?','How can we encourage skepticism toward digital content?','How can we prevent users from ignoring critical information?','How can we make it obvious what is clickable and what is not?','How can we slow down the pace of information consumption?','How can we help users avoid mistakes?','How can we increase the perceived risk or importance of an action?','How can we slow down impulsive decision-making?','How can we confirm that the user understood what just happened?','How can we create space for second thoughts?','How can we encourage users to question what they are told?','How can we make users aware of what they are accepting?','How can we make users aware of what they cannot undo?'];
-  const patterns   = ['Betrayal','Blatant Lie','Checkpoint Starvation','Confront the User','Crash & Burn','Double Twist','Elimination of the Safetynet','Faux Finale','Forced Downtime','Induce Pauses','Limited Zones','Mimic','Misleading Standards','Offer Multiple Points of View','Remind of the Consequences','Request Additional Confirmations'];
+  const patterns   = ['Betrayal','Checkpoint Starvation','Crash & Burn','Faux Finale','Induce Pauses','Limited Zones','Mimic','Offer Multiple Points of View','Request Additional Confirmations'];
   const pick     = arr => arr[Math.floor(Math.random() * arr.length)];
   const pickN    = (arr, n, exclude) => arr.filter(x => x !== exclude).sort(() => Math.random()-0.5).slice(0, n);
 
@@ -1513,23 +1525,16 @@
   /* ── DECK BROWSER ── */
   const DECKS = [
     {
-      id: 'patterns', label: 'Friction Patterns', tag: 'Friction\nPatterns', ar: [1204, 1994],
+      id: 'patterns', label: 'Friction Patterns', tag: 'Friction\nPatterns', ar: [1159, 2173],
       cards: [
         { name: 'Betrayal',                         cat: 'Consequence',  desc: 'Failing to uphold a clear or unspoken agreement with players or users.' },
-        { name: 'Blatant Lie',                      cat: 'Transparency', desc: 'A deliberate falsehood in the interface that forces the user to question what they are seeing and reconsider their trust in the system.' },
         { name: 'Checkpoint Starvation',            cat: 'Consequence',  desc: 'Limiting players\' ability to save the game progress to increase tension and value of survival.' },
-        { name: 'Confront the User',                cat: 'Interruption', desc: 'Interrupts the automatic flow to present the user with the direct consequences of their actions, restoring their capacity to decide consciously.' },
         { name: 'Crash & Burn',                     cat: 'Consequence',  desc: 'Intentional, simulated technical disruptions to deceive the user into believing a critical error has occurred.' },
-        { name: 'Double Twist',                     cat: 'Reflection',   desc: 'Subverts the user\'s expectations twice in sequence — creating surprise and a moment of genuine reflection on assumptions.' },
-        { name: 'Elimination of the Safetynet',    cat: 'Consequence',  desc: 'Removes undo, restore, or cancel options to make actions feel genuinely consequential and encourage more deliberate decision-making.' },
         { name: 'Faux Finale',                      cat: 'Reflection',   desc: 'A deception pattern that tricks the player into believing the game has concluded or that their character has died, only to reveal further gameplay or a narrative twist.' },
-        { name: 'Forced Downtime',                  cat: 'Interruption', desc: 'Introduces mandatory waiting periods that cannot be bypassed, creating space for reflection and breaking cycles of continuous engagement.' },
         { name: 'Induce Pauses',                    cat: 'Interruption', desc: 'Slowing the user\'s interaction flow by inserting moments of forced stillness.' },
         { name: 'Limited Zones',                    cat: 'Boundary',     desc: 'Temporarily restricting the player\'s abilities, inventory, or character choice.' },
         { name: 'Mimic',                            cat: 'Reflection',   desc: 'A term, object, character or action that mimics a harmless or beneficial thing to deceive users, functioning instead as a trap or hostile entity.' },
-        { name: 'Misleading Standards',             cat: 'Perspective',  desc: 'Presents alternative norms or statistics to challenge assumptions about what constitutes normal or expected behaviour.' },
         { name: 'Offer Multiple Points of View',    cat: 'Perspective',  desc: 'Guiding the user toward more balanced and reflective decisions by presenting alternative perspectives.' },
-        { name: 'Remind of the Consequences',       cat: 'Consequence',  desc: 'Makes the downstream effects of an action visible before it is taken, giving the user the information they need to decide consciously.' },
         { name: 'Request Additional Confirmations', cat: 'Interruption', desc: 'Confirmation steps in the interface that slow the user down, encourage reflection, and prevent impulsive or automatic decisions.' },
       ]
     },
@@ -1677,6 +1682,7 @@
         cardEl.className = 'mob-card';
         cardEl.style.aspectRatio = `${deck.ar[0]}/${deck.ar[1]}`;
         cardEl.innerHTML = `
+          <img class="mob-card-img" src="${cardImageSrc(deck, card)}" alt="" onload="this.classList.add('loaded')" onerror="this.style.display='none'">
           <span class="mob-card-tag">${deck.tag.replace(/\n/g,'<br>')}</span>
           <span class="mob-card-name">${card.name}</span>`;
         cardEl.addEventListener('click', () => openCard(deck.id, cardIdx));
@@ -1732,7 +1738,7 @@
       [0.55, 1.813, 1.45, 25],  // Platforms          — central right
       [0.45, 1.97, 1.38,  20],  // Ethical Challenges — bottom left
       [0.45, 1.813, 1.45, 25],  // Flow               — central left
-      [0.55, 1.97, 1.38,  20],  // Connectors         — bottom right
+      [0.55, 1.97, 1.38,   8],  // Connectors         — bottom right
     ];
 
     const [cxF, cyF, rF, span] = ZONES[deckIdx];
