@@ -1153,26 +1153,29 @@
     launchLetters(landChars);
     landChars.forEach(ch => { ch.style.opacity = '0'; });
 
-    // Scroll to menu — wait longer on mobile so letters are visibly falling first.
+    // Desktop: native smooth scroll starting while letters are still falling (matches reference).
+    // Mobile: custom rAF scroll so iOS Safari doesn't crawl.
     const isMobScroll = window.innerWidth < 700;
-    const delay = isMobScroll ? 720 : 1800;
-    await sleep(delay);
-    const targetY = sectionMenu.getBoundingClientRect().top + window.scrollY;
-    // Custom eased scroll so iOS Safari doesn't crawl with behavior:'smooth'
-    await new Promise(resolve => {
-      const start    = window.scrollY;
-      const dist     = targetY - start;
-      const duration = isMobScroll ? 220 : 900;
-      const startT   = performance.now();
-      function step(now) {
-        const t = Math.min((now - startT) / duration, 1);
-        const ease = t < 0.5 ? 2*t*t : -1+(4-2*t)*t; // ease-in-out quad
-        window.scrollTo(0, start + dist * ease);
-        if (t < 1) requestAnimationFrame(step); else resolve();
-      }
-      requestAnimationFrame(step);
-    });
-    await sleep(300);
+    if (isMobScroll) {
+      await sleep(720);
+      const targetY = sectionMenu.getBoundingClientRect().top + window.scrollY;
+      await new Promise(resolve => {
+        const start = window.scrollY, dist = targetY - start;
+        const duration = 220, startT = performance.now();
+        function step(now) {
+          const t = Math.min((now - startT) / duration, 1);
+          const ease = t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
+          window.scrollTo(0, start + dist * ease);
+          if (t < 1) requestAnimationFrame(step); else resolve();
+        }
+        requestAnimationFrame(step);
+      });
+      await sleep(300);
+    } else {
+      await sleep(800);
+      sectionMenu.scrollIntoView({ behavior: 'smooth' });
+      await sleep(1200);
+    }
 
     // Prepare next phrase so the text is ready if they scroll back up
     landIndex = (landIndex + 1) % phrases.length;
