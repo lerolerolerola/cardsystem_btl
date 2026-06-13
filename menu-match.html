@@ -1157,11 +1157,11 @@
     // Mobile: custom rAF scroll so iOS Safari doesn't crawl.
     const isMobScroll = window.innerWidth < 700;
     if (isMobScroll) {
-      await sleep(250);
+      await sleep(600);
       const targetY = sectionMenu.getBoundingClientRect().top + window.scrollY;
       await new Promise(resolve => {
         const start = window.scrollY, dist = targetY - start;
-        const duration = 350, startT = performance.now();
+        const duration = 550, startT = performance.now();
         function step(now) {
           const t = Math.min((now - startT) / duration, 1);
           const ease = t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
