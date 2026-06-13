@@ -1762,7 +1762,7 @@
       [0.50, 2.22, 2.00,  30],  // Friction Patterns  — top middle
       [0.55, 1.90, 1.45, 25],  // Platforms          — central right
       [0.45, 1.97, 1.38,  20],  // Ethical Challenges — bottom left
-      [0.45, 1.813, 1.45, 25],  // Flow               — central left
+      [0.45, 1.90, 1.45, 25],  // Flow               — central left
       [0.55, 1.97, 1.38,   8],  // Connectors         — bottom right
     ];
 
@@ -1781,7 +1781,7 @@
       const el = document.createElement('div');
       el.className = 'table-card';
       const imgSrc = cardImageSrc(deck, card);
-      el.innerHTML = `<img class="table-card-img" src="${imgSrc}" alt="" onload="this.classList.add('loaded')" onerror="this.remove()"><span class="table-card-tag">${deck.tag.replace(/\n/g,'<br>')}</span><span class="table-card-name">${card.name}</span>`;
+      el.innerHTML = `<img class="table-card-img" src="${imgSrc}" alt="" onload="this.classList.add('loaded')" onerror="this.remove()">`;
       el.style.width       = CARD_W + 'px';
       el.style.aspectRatio = `${deck.ar[0]}/${deck.ar[1]}`;
       el.style.zIndex = deckIdx * 20 + i;
