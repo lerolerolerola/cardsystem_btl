@@ -241,7 +241,7 @@
 
   .rand-layout { display: grid; grid-template-columns: 120px 1fr; gap: 48px; align-items: start; margin-top: 8px; }
   @media (max-width: 560px) { .rand-layout { grid-template-columns: 1fr; } }
-  .rand-card-scene { width: 120px; aspect-ratio: 1204/1994; flex-shrink: 0; perspective: 600px; }
+  .rand-card-scene { width: 120px; aspect-ratio: 1159/2173; flex-shrink: 0; perspective: 600px; }
   .rand-card-flipper { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; }
   .rand-card-placeholder { width: 100%; height: 100%; border-radius: 5px; border: 1.5px dashed #111; background: #fff; display: flex; flex-direction: column; padding: 8px 6px; position: absolute; inset: 0; }
   .rand-card-tag { font-size: 6px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.4; line-height: 1.4; margin-bottom: auto; font-family: 'IBM Plex Mono', monospace; }
@@ -1320,10 +1320,10 @@
   const btn        = document.getElementById('rand-btn');
 
   const sentences = [
-    (pl,ch,pa) => `Apply<br><a class="rand-chip rand-chip-pattern" href="${archiveUrl(pa)}" target="_blank" rel="noopener">${pa}</a><br>on <span class="rand-chip rand-chip-platform">${pl}</span><br>to <span class="rand-chip rand-chip-challenge">${fmtCh(ch)}</span>.`,
-    (pl,ch,pa) => `You are the Friction Agent on<br><span class="rand-chip rand-chip-platform">${pl}</span><br>Use <a class="rand-chip rand-chip-pattern" href="${archiveUrl(pa)}" target="_blank" rel="noopener">${pa}</a><br>to <span class="rand-chip rand-chip-challenge">${fmtCh(ch)}</span>.`,
-    (pl,ch,pa) => `Design a<br><a class="rand-chip rand-chip-pattern" href="${archiveUrl(pa)}" target="_blank" rel="noopener">${pa}</a><br>for <span class="rand-chip rand-chip-platform">${pl}</span><br>Constraint: <span class="rand-chip rand-chip-challenge">${fmtCh(ch)}</span>.`,
-    (pl,ch,pa) => `How would<br><a class="rand-chip rand-chip-pattern" href="${archiveUrl(pa)}" target="_blank" rel="noopener">${pa}</a><br>help <span class="rand-chip rand-chip-platform">${pl}</span> users<br><span class="rand-chip rand-chip-challenge">${fmtCh(ch)}?</span>`,
+    (pl,ch,pa) => `Apply <a class="rand-chip rand-chip-pattern" href="${archiveUrl(pa)}" target="_blank" rel="noopener">${pa}</a> in <span class="rand-chip rand-chip-platform">${pl}</span> to <span class="rand-chip rand-chip-challenge">${fmtCh(ch)}</span>.`,
+    (pl,ch,pa) => `You are the Friction Agent on <span class="rand-chip rand-chip-platform">${pl}</span>. Use <a class="rand-chip rand-chip-pattern" href="${archiveUrl(pa)}" target="_blank" rel="noopener">${pa}</a> to <span class="rand-chip rand-chip-challenge">${fmtCh(ch)}</span>.`,
+    (pl,ch,pa) => `Use <a class="rand-chip rand-chip-pattern" href="${archiveUrl(pa)}" target="_blank" rel="noopener">${pa}</a> in <span class="rand-chip rand-chip-platform">${pl}</span>. Goal: <span class="rand-chip rand-chip-challenge">${fmtCh(ch)}</span>.`,
+    (pl,ch,pa) => `How would <a class="rand-chip rand-chip-pattern" href="${archiveUrl(pa)}" target="_blank" rel="noopener">${pa}</a> help <span class="rand-chip rand-chip-platform">${pl}</span> users <span class="rand-chip rand-chip-challenge">${fmtCh(ch)}</span>?`,
   ];
 
   let shuffling = false;
