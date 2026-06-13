@@ -1172,24 +1172,12 @@
       });
       await sleep(300);
     } else {
-      // Desktop: start scrolling almost immediately so the viewport moves down
-      // alongside the falling letters — making the collision with shapes visible.
+      // Desktop: use native browser smooth scroll (runs off main thread, won't
+      // stutter during physics collisions). Start early so letters fall visibly
+      // into the menu shapes as the viewport descends.
       await sleep(120);
-      const targetY = sectionMenu.getBoundingClientRect().top + window.scrollY;
-      await new Promise(resolve => {
-        const start = window.scrollY, dist = targetY - start;
-        const duration = 1800; // slow scroll so letters fall through the visible area
-        const startT = performance.now();
-        function step(now) {
-          const t = Math.min((now - startT) / duration, 1);
-          // ease-in-out but weighted toward ease-in so viewport moves early
-          const ease = t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
-          window.scrollTo(0, start + dist * ease);
-          if (t < 1) requestAnimationFrame(step); else resolve();
-        }
-        requestAnimationFrame(step);
-      });
-      await sleep(400);
+      sectionMenu.scrollIntoView({ behavior: 'smooth' });
+      await sleep(2000);
     }
 
     // Prepare next phrase so the text is ready if they scroll back up
@@ -1636,6 +1624,8 @@
         { name: 'Add to Cart',                cat: 'Commerce',        desc: 'A call-to-action button that places an item into the user\'s virtual shopping cart.' },
         { name: 'Shopping Cart',              cat: 'Commerce',        desc: 'An overview page where users can review items and see a summary before proceeding to pay.' },
         { name: 'Payment Screen',             cat: 'Commerce',        desc: 'A secure interface to enter payment details, such as credit card information or digital wallet credentials.' },
+        { name: 'Navigation Menu',            cat: 'Structure',       desc: 'Menus, tabs and wayfinding elements that enable movement between sections and levels of the product.' },
+        { name: 'Permission Request',         cat: 'Alert',           desc: 'A prompt asking the user to grant or deny access to a device feature such as location, camera or notifications.' },
       ]
     },
     {
